@@ -1,0 +1,33 @@
+{
+  "description": "Number of records by category(100, 110, 200) week 2015-06-10 to 2015-06-18 Milano Lambrate Station.",
+  "data": { 
+    "url" : "data/grouped-data.json"
+  },
+  "mark": "bar",
+  "encoding": {
+    "x": {
+      "timeUnit": "day", 
+      "field": "date", 
+      "type": "temporal", 
+      "axis": {"title": "Week 2015/06/10 - 2015/06/18", "shortTimeLabels": true, "offset": 1, "tickColor": "#00A800"}
+    },
+    "y": {
+      "field": "*", 
+      "aggregate": "count", 
+      "type": "quantitative", 
+      "axis": {"tickColor": "#00A800"}
+    },
+    "color": {
+      "field": "qi",
+      "type": "nominal",
+      "scale": {
+        "domain": ["100", "110", "200"],
+        "range": ["#1B9E77", "#D95F02", "#7570B3"]
+      },
+      "legend": {"title": "Quality index"}
+    }
+  },
+  "config": {
+    "cell": {"width": 600}
+  }
+}

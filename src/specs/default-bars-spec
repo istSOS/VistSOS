@@ -1,0 +1,26 @@
+{
+  "description": "Change this",
+  "data": { 
+    "url" : "[]"
+  },
+  "mark": "bar",
+  "encoding": {
+    "y": {
+      "timeUnit": "month", 
+      "field": "date", 
+      "type": "temporal", 
+      "axis": {"shortTimeLabels": true, "offset": 2, "tickColor": "#00A800"}
+    },
+    "x": {
+      "field": "measurement", 
+      "aggregate": "sum", 
+      "type": "quantitative", 
+      "axis": {"tickColor": "#00A800"}, 
+      "scale": {"bandSize": 17}
+    },
+    "color": {"value": "#00A800"}
+  },
+  "config": {
+    "cell": {"width": 600}
+  }
+}

@@ -1,0 +1,83 @@
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>istSOS Chart Widget</title>
+    <script src="//d3js.org./d3.v3.min.js"></script>
+    <script src="//vega.github.io/vega/vega.js"></script>
+    <script src="//vega.github.io/vega-lite/vega-lite.js"></script>
+    <script src="//vega.github.io/vega-editor/vendor/vega-embed.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.13.0/moment.min.js"></script> 
+    <script src="data/javascript/data-provider.js"></script> 
+    <script src="util/util.js"></script> 
+    <style>
+      .tooltip {
+        width: 100%;
+        display: block;
+      }
+      .vega-actions a {
+        margin-right: 5px;
+      }
+    </style>  
+    <script>
+      $.ajaxSetup({ async: true });
+
+      var chartType = getURLParameter("chart");
+      var offering = getURLParameter("offering");
+      var procedure = getURLParameter("procedure");
+      var property = getURLParameter("property");
+      var from = getURLParameter("from");
+      var until = getURLParameter("until");
+      var color = getURLParameter("color");
+      var jsonSpec = {};
+      var measurements = [];
+      var vegaMode = "vega-lite"
+
+      if (moment.utc(from).isValid() && moment.utc(until).isValid()) {
+        getData(offering, procedure, property, from, until); // from data-provider.js
+      }
+
+      function loadSpec(data) {
+        measurements = data;
+        
+        if (chartType == "line") {
+          getJSONSpec("default-lines-spec"); // from util.js
+        } else if (chartType == "bar") {
+          getJSONSpec("default-bars-spec");
+        } else if (chartType == "punch-card") {
+          getJSONSpec("default-punch-card-spec");
+        } else if (chartType == "scatterplot") {
+          getJSONSpec("default-scatterplot-spec");
+        } else if (chartType == "overview-detail") {
+          vegaMode = "vega";
+          getJSONSpec("default-overview-detail-spec");
+        }
+      }
+
+      function embedChart(jsonSpec) { 
+        if (chartType == "overview-detail") {
+          var sfrom = moment(from).format("MMM d YYYY");
+          var suntil = moment(until).format("MMM d YYYY");
+
+          jsonSpec.data[0].values = measurements;
+          jsonSpec.signals[1].init.expr = "datetime('" + sfrom + "')";
+          jsonSpec.signals[2].init.expr = "datetime('" + sfrom + "')";
+          jsonSpec.signals[2].expr = "time(brush_start) === time(brush_end) ? datetime('" + sfrom + "') : min(brush_start, brush_end)";
+          jsonSpec.signals[3].init.expr = "datetime('" + suntil + "')";
+          jsonSpec.signals[3].expr = "time(brush_start) === time(brush_end) ? datetime('" + suntil + "') : max(brush_start, brush_end)";
+
+          jsonSpec.marks[0].marks[0].marks[0].properties.update.fill.value = "#" + color;
+        } else {
+          jsonSpec.data.values = measurements;
+          jsonSpec.encoding.color.value = "#" + color;
+        }
+
+        var embedSpec = { mode: vegaMode, spec: jsonSpec };
+        vg.embed("#chart", embedSpec, function(error, result) { });
+      }
+    </script>
+  </head>
+  <body>
+    <div id="chart"></div>
+  </body>
+</html>

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<head>
+  <title>Bar chart</title>
+  <meta charset="utf-8">
+
+  <script src="//d3js.org./d3.v3.min.js"></script>
+  <script src="//vega.github.io/vega/vega.js"></script>
+  <script src="//vega.github.io/vega-lite/vega-lite.js"></script>
+  <script src="//vega.github.io/vega-editor/vendor/vega-embed.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.13.0/moment.min.js"></script> 
+  <style media="screen">
+    .vega-actions a {
+      margin-right: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div id="vis"><div>
+  <script>
+
+    var dataURL = "http://131.175.143.71/istsos/test?" +
+                  "service=SOS&version=1.0.0&request=GetObservation&offering=offering1" +
+                  "&procedure=MI_Lambrate_Precipitazione&eventTime=2015-01-01T00:00:00+0200/2015-06-11T00:00:00+0200&" +
+                  //"observedProperty=rainfall&aggregateInterval=PT24H&aggregateFunction=SUM&" +
+                  "observedProperty=rainfall&" +
+                  //"qualityIndex=True&qualityFilter>=200" +
+                  "responseFormat=application/json";
+ 
+    $.getJSON(dataURL, function(data) {
+      // var data contains values, fields and elementCount
+      var data = jQuery.extend({}, data["ObservationCollection"].member[0].result.DataArray);
+      var values = data["values"].slice();
+      var measurements = [];
+      
+      for (var i = 0; i < values.length; i++) {
+        var measurement = {
+          "date": moment.utc(values[i][0]).format("L"),
+          "rainfall": values[i][1]
+        }
+        measurements.push(measurement);
+      }
+
+      // chart declaration
+      var vlSpec = {
+        "description": "Average rainfall(mm) January 15 - June 15 Milano Lambrate Station.",
+        "data": { 
+          "values" : measurements 
+        },
+        "mark": "bar",
+        "encoding": {
+          "y": {
+            "timeUnit": "month", 
+            "field": "date", 
+            "type": "temporal", 
+            "axis": {"shortTimeLabels": true, "offset": 2, "tickColor": "#00A800"}
+          },
+          "x": {
+            "field": "rainfall", 
+            "aggregate": "sum", 
+            "type": "quantitative", 
+            "axis": {"tickColor": "#00A800"}, 
+            "scale": {"bandSize": 17}
+          },
+          "color": {"value": "#00A800"}
+        },
+        "config": {
+          "cell": {"width": 600}
+        }
+      };
+   
+      var embedSpec = {
+        mode: "vega-lite" ,
+        spec: vlSpec
+      };
+
+      vg.embed("#vis", embedSpec, function(error, result) { });
+    });
+
+  </script>
+</body>
+</html>

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<head>
+  <title>Grouped bar chart</title>
+  <meta charset="utf-8">
+
+  <script src="//d3js.org./d3.v3.min.js"></script>
+  <script src="//vega.github.io/vega/vega.js"></script>
+  <script src="//vega.github.io/vega-lite/vega-lite.js"></script>
+  <script src="//vega.github.io/vega-editor/vendor/vega-embed.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.13.0/moment.min.js"></script> 
+  <style media="screen">
+    .vega-actions a {
+      margin-right: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div id="vis"><div>
+  <script>
+
+    var dataURL = "http://131.175.143.71/istsos/test?" +
+                  "service=SOS&version=1.0.0&request=GetObservation&offering=offering1" +
+                  "&procedure=MI_Lambrate_Precipitazione&eventTime=2015-06-10T00:00:00+0200/2015-06-18T00:00:00+0200&" +
+                  //"observedProperty=rainfall&aggregateInterval=PT24H&aggregateFunction=SUM&" +
+                  "observedProperty=rainfall&" +
+                  "qualityIndex=True&" +
+                  "responseFormat=application/json";
+ 
+    $.getJSON(dataURL, function(data) {
+      // var data contains values, fields and elementCount
+      var data = jQuery.extend({}, data["ObservationCollection"].member[0].result.DataArray);
+      var values = data["values"].slice();
+      var measurements = [];
+      
+      for (var i = 0; i < values.length; i++) {
+        var measurement = {
+          "date": moment.utc(values[i][0]).format("L"),
+          "rainfall": values[i][1],
+          "qi": values[i][2]
+        }
+        measurements.push(measurement);
+      }
+
+      // chart declaration
+      var vlSpec = {
+        "description": "Number of records by category(100, 110, 200) week 2015-06-10 to 2015-06-18 Milano Lambrate Station.",
+        "data": { 
+          "values" : measurements 
+        },
+        "mark": "bar",
+        "encoding": {
+          /*"column": {
+            "field": "qi",
+            "type": "quantitative",
+            //"aggregate": "count",
+            "scale": {"padding": 4},
+            "axis": {"orient": "bottom"}
+          },*/
+          "x": {
+            "timeUnit": "day", 
+            "field": "date", 
+            "type": "temporal", 
+            "axis": {"title": "Week 2015/06/10 - 2015/06/18", "shortTimeLabels": true, "offset": 1, "tickColor": "#00A800"}
+          },
+          "y": {
+            "field": "*", 
+            "aggregate": "count", 
+            "type": "quantitative", 
+            "axis": {"tickColor": "#00A800"}
+          },
+          "color": {
+            "field": "qi",
+            "type": "nominal",
+            "scale": {
+              "domain": ["100", "110", "200"],
+              "range": ["#1B9E77", "#D95F02", "#7570B3"]
+            },
+            "legend": {"title": "Quality index"}
+          }
+        },
+        "config": {
+          "cell": {"width": 600}
+        }
+      };
+   
+      var embedSpec = {
+        mode: "vega-lite" ,
+        spec: vlSpec
+      };
+
+      vg.embed("#vis", embedSpec, function(error, result) { });
+    });
+
+  </script>
+</body>
+</html>

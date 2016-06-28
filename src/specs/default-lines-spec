@@ -1,0 +1,27 @@
+{
+  "description": "Change this",
+  "data": { 
+    "values": "[]" 
+  },
+  "mark": "line",
+  "encoding": {
+    "x": {
+      "timeUnit": "monthdate", 
+      "field": "date", 
+      "type": "temporal", 
+      "axis": {"shortTimeLabels": true, "offset": 2, "ticks": 12, "tickColor": "#00A800"}
+    },
+    "y": {
+      "field": "measurement", 
+      "type": "quantitative", 
+      "axis": {"tickColor": "#00A800"}
+    },
+    "color": {
+      "value": "#00A800"
+    }
+  },
+  "config": {
+    "mark": {"interpolate": "monotone"},
+    "cell": {"width": 600}
+  }
+}

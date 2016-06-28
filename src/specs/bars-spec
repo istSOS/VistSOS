@@ -1,0 +1,26 @@
+{
+  "description": "Average rainfall(mm) January 15 - June 15 Milano Lambrate Station.",
+  "data": { 
+    "url" : "data/bars-data.json"
+  },
+  "mark": "bar",
+  "encoding": {
+    "y": {
+      "timeUnit": "month", 
+      "field": "date", 
+      "type": "temporal", 
+      "axis": {"shortTimeLabels": true, "offset": 2, "tickColor": "#00A800"}
+    },
+    "x": {
+      "field": "rainfall", 
+      "aggregate": "sum", 
+      "type": "quantitative", 
+      "axis": {"tickColor": "#00A800"}, 
+      "scale": {"bandSize": 17}
+    },
+    "color": {"value": "#00A800"}
+  },
+  "config": {
+    "cell": {"width": 600}
+  }
+}

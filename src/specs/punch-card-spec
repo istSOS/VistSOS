@@ -1,0 +1,21 @@
+{
+  "data": { "url": "data/temp.json" },
+  "mark": "circle",
+  "encoding": {
+    "y": {
+      "field": "date",
+      "type": "temporal",
+      "timeUnit": "day"
+    },
+    "x": {
+      "field": "date",
+      "type": "temporal",
+      "timeUnit": "hours"
+    },
+    "size": {
+      "field": "temperature",
+      "type": "quantitative",
+      "aggregate": "average"
+    }
+  }
+}

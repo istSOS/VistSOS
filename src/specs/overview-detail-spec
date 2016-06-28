@@ -1,0 +1,162 @@
+{
+  "width": 720,
+  "height": 480,
+
+  "signals": [
+    {
+      "name": "brush_start",
+      "streams": [{
+        "type": "@overview:mousedown", 
+        "expr": "eventX()", 
+        "scale": {"name": "xOverview", "invert": true}
+      }]
+    },
+    {
+      "name": "brush_end",
+      "init": {"expr": "datetime('Jan 1 2015')"},
+      "streams": [{
+        "type": "@overview:mousedown, [@overview:mousedown, window:mouseup] > window:mousemove",
+        "expr": "clamp(eventX(), 0, 720)",
+        "scale": {"name": "xOverview", "invert": true}
+      }]
+    },
+    {
+      "name": "min_date", 
+      "init": {"expr": "datetime('Jan 1 2015')"},
+      "expr": "time(brush_start) === time(brush_end) ? datetime('Jan 1 2015') : min(brush_start, brush_end)"
+    },
+    {
+      "name": "max_date", 
+      "init": {"expr": "datetime('Jun 30 2015')"},
+      "expr": "time(brush_start) === time(brush_end) ? datetime('Jun 30 2015') : max(brush_start, brush_end)"
+    }
+  ],
+
+  "data": [
+    {
+      "name": "temp6months", 
+      "url": "data/temp6months.json",
+      "format": {"type": "json", "parse": {"temperature": "number", "date": "date"}}
+    }
+  ],
+
+  "scales": [
+    {
+      "name": "xOverview",
+      "type": "time",
+      "range": [0, 720],
+      "domain": {"data": "temp6months", "field": "date"}
+    },
+    {
+      "name": "yOverview",
+      "type": "linear",
+      "range": [70, 0],
+      "nice": true,
+      "domain": {"data": "temp6months", "field": "temperature"}
+    },
+    {
+      "name": "xDetail",
+      "type": "time",
+      "range": [0, 720],
+      "domainMin": {"signal": "min_date"},
+      "domainMax": {"signal": "max_date"}
+    },
+    {
+      "name": "yDetail",
+      "type": "linear",
+      "range": [390, 0],
+      "nice": true,
+      "domain": {"data": "temp6months", "field": "temperature"}
+    }
+  ],
+
+  "marks": [
+    {
+      "type": "group",
+      "name": "detail",
+      "properties": {
+        "enter": {
+          "height": {"value": 390},
+          "width": {"value": 720}
+        }
+      },
+      "axes": [
+        {"type": "x", "scale": "xDetail"},
+        {"type": "y", "scale": "yDetail"}
+      ],
+      "marks": [
+        {
+          "type": "group",
+          "properties": {
+            "enter": {
+              "height": {"field": {"group": "height"}},
+              "width": {"field": {"group": "width"}},
+              "clip": {"value": true}
+            }
+          },
+          "marks": [
+            {
+              "type": "area",
+              "from": {"data": "temp6months"},
+              "properties": {
+                "update": {
+                  "x": {"scale": "xDetail", "field": "date"},
+                  "y": {"scale": "yDetail", "field": "temperature"},
+                  "y2": {"scale": "yDetail", "value": 0},
+                  "fill": {"value": "#00A800"}
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+
+    {
+      "type": "group",
+      "name": "overview",
+      "properties": {
+        "enter": {
+          "x": {"value": 0},
+          "y": {"value": 430},
+          "height": {"value": 70},
+          "width": {"value": 720},
+          "fill": {"value": "transparent"}
+        }
+      },
+      "axes": [
+        {"type": "x", "scale": "xOverview"}
+      ],
+      "marks": [
+        {
+          "type": "area",
+          "from": {"data": "temp6months"},
+          "properties": {
+            "update": {
+              "x": {"scale": "xOverview", "field": "date"},
+              "y": {"scale": "yOverview", "field": "temperature"},
+              "y2": {"scale": "yOverview", "value": 0},
+              "fill": {"value": "#00A800"}
+            }
+          }
+        },
+        {
+          "type": "rect",
+          "properties":{
+            "enter":{
+              "y": {"value": 0},
+              "height": {"value":70},
+              "fill": {"value": "#333"},
+              "fillOpacity": {"value":0.2}
+            },
+            "update":{
+              "x": {"scale": "xOverview", "signal": "brush_start"},
+              "x2": {"scale": "xOverview", "signal": "brush_end"}
+            }
+          }
+        }
+      ]
+    }
+
+  ]
+}
