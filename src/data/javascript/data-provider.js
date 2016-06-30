@@ -1,4 +1,4 @@
-function getData(offering, procedure, property, from, until) {
+function getData(offering, procedure, property, from, until, callback) {
   var dataURL = "http://131.175.143.71/istsos/test?" +
                 "service=SOS&version=1.0.0&" +
                 "request=GetObservation&" + 
@@ -27,6 +27,7 @@ function getData(offering, procedure, property, from, until) {
       }
       measurements.push(measurement);
     }
-    loadSpec(measurements);
+    
+    callback(measurements);
   });
 }

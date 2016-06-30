@@ -1,8 +1,8 @@
-function getJSONSpec(specName) {
+function getJSONSpec(specName, callback) {
   var specPath = "specs/" + specName;
   var spec = {};
   $.getJSON(specPath, function(response) {
-    embedChart(response);
+    callback(response);
   });
 }
 

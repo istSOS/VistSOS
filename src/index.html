@@ -2,7 +2,9 @@
   <head>
     <meta charset="utf-8">
     <title>Chart Designer</title>
+    <link rel="import" href="default-widget.html" async>
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.4/jquery.datetimepicker.css" />
+    <script src="../bower_components/webcomponentsjs/webcomponents.js"></script>
     <script src="//d3js.org./d3.v3.min.js"></script>
     <script src="//vega.github.io/vega/vega.js"></script>
     <script src="//vega.github.io/vega-lite/vega-lite.js"></script>
@@ -138,11 +140,18 @@
 
       <input type="button" id="button" value="Configure" />
 
-      <h3>Code:</h3>
-      <textarea id="txt-iframe" rows="5" cols="45" readonly></textarea>
+      <h3>HTMLImport Code:</h3>
+      <textarea id="txtarea1" rows="1" cols="60" readonly></textarea>
+
+      <h3>Div Code:</h3>
+      <textarea id="txtarea2" rows="1" cols="30" readonly></textarea>
+
+      <h3>Component Code:</h3>
+      <textarea id="txtarea3" rows="5" cols="60" readonly></textarea>
+
     </div>
 
-    <div id="embedded"></div>
+    <div id="istsos-section"></div>
     
     <script type="text/javascript">
       var host = $(location).attr("href");
@@ -195,19 +204,21 @@
 
         if (!(from === "") && !(to === "")) {
           if (moment(toWithOffset).isAfter(fromWithOffset)) {
-            var chartUrl = host + "default-widget.html?" + 
-                                  "chart=" + chartType + 
-                                  "&offering=" + offering +
-                                  "&procedure=" + procedure +
-                                  "&property=" + property + 
-                                  "&from=" + fromWithOffset +  
-                                  "&until=" + toWithOffset +
-                                  "&color=" + color;
-            var iframe = "<iframe name='istSOS-chart' src='" + chartUrl + "' width='760' height='550' scrolling='no' frameborder='0'></iframe>";
+            var divComp = "<div id ='istsos-section'></div>"
+            var component = "<istsos-chart type='" + chartType + "'" +
+                              " offering='" + offering + "'" +
+                              " procedure='" + procedure + "'" +
+                              " property='" + property + "'" +
+                              " from='" + from + "'" +
+                              " until='" + to + "'" +
+                              " color='" + color + "'" +
+                              "</istsos-chart>";
 
-            $("#txt-iframe").val(iframe);
+            $("#txtarea1").val("<link rel='import' href='default-widget.html' async>");
+            $("#txtarea2").val(divComp);
+            $("#txtarea3").val(component);
 
-            $("#embedded").html("<h3>Embedded Chart:</h3>" + iframe);
+            //$("#istsos-section").html("<h3>Embedded Chart:</h3>" + component);
           }
         }
       });
