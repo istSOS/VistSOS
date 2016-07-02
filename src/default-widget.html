@@ -2,7 +2,7 @@
   <head>
     <meta charset="utf-8">
     <title>istSOS Chart Component</title>
-    <script src="../bower_components/webcomponentsjs/webcomponents.js"></script>
+    <script src="../bower_components/webcomponentsjs/webcomponents.min.js"></script>
     <script src="//d3js.org./d3.v3.min.js"></script>
     <script src="//vega.github.io/vega/vega.js"></script>
     <script src="//vega.github.io/vega-lite/vega-lite.js"></script>
@@ -32,7 +32,8 @@
         var jsonSpec = {};
         var measurements = [];
         var vegaMode = "vega-lite";
-        var chartType = this.getAttribute("type"); // For default values use: this.getAttribute("type") || "line"
+        var divId = this.getAttribute("divId"); // For default values use: this.getAttribute("type") || "line"
+        var chartType = this.getAttribute("type");
         var offering = this.getAttribute("offering");
         var procedure = this.getAttribute("procedure");
         var property = this.getAttribute("property");
@@ -80,8 +81,7 @@
           }
 
           var embedSpec = { mode: vegaMode, spec: jsonSpec };
-          //var importedDoc = document._currentScript.ownerDocument;
-          vg.embed("#istsos-section", embedSpec, function(error, result) { });
+          vg.embed("#" + divId, embedSpec, function(error, result) { });
         }
       };
 

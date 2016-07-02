@@ -1,3 +1,14 @@
+// Generates a random id
+function getDivId(callback) {
+  var id = genRandId() + genRandId();
+  callback(id);
+}
+
+function genRandId() {
+  return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
+}
+
+// Returns a vega/vegga-lite JSON specification from specs folder
 function getJSONSpec(specName, callback) {
   var specPath = "specs/" + specName;
   var spec = {};

@@ -4,6 +4,7 @@
     <title>Chart Designer</title>
     <link rel="import" href="default-widget.html" async>
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.4/jquery.datetimepicker.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.rawgit.com/google/code-prettify/master/src/prettify.css" />
     <script src="../bower_components/webcomponentsjs/webcomponents.js"></script>
     <script src="//d3js.org./d3.v3.min.js"></script>
     <script src="//vega.github.io/vega/vega.js"></script>
@@ -13,6 +14,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.13.0/moment.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.4/build/jquery.datetimepicker.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jscolor/2.0.4/jscolor.js"></script>
+    <script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script>
+    <script src="https://cdn.rawgit.com/google/code-prettify/master/loader/prettify.js"></script>
+    <script src="util/util.js"></script>
     <style>
       .designer {
         padding-top: 10px;
@@ -141,17 +145,16 @@
       <input type="button" id="button" value="Configure" />
 
       <h3>HTMLImport Code:</h3>
-      <textarea id="txtarea1" rows="1" cols="60" readonly></textarea>
-
-      <h3>Div Code:</h3>
-      <textarea id="txtarea2" rows="1" cols="30" readonly></textarea>
+      <pre id="importtxt" class="prettyprint">&lt;link rel='import' href='default-widget.html' async&gt;</pre>
 
       <h3>Component Code:</h3>
-      <textarea id="txtarea3" rows="5" cols="60" readonly></textarea>
+      <div id="componenttxt"></div>
 
+      <hr class="space-between" />
+      <div id="chart-section"></div>
     </div>
 
-    <div id="istsos-section"></div>
+    <!-- <div id="chart-section"></div> -->
     
     <script type="text/javascript">
       var host = $(location).attr("href");
@@ -204,21 +207,23 @@
 
         if (!(from === "") && !(to === "")) {
           if (moment(toWithOffset).isAfter(fromWithOffset)) {
-            var divComp = "<div id ='istsos-section'></div>"
-            var component = "<istsos-chart type='" + chartType + "'" +
-                              " offering='" + offering + "'" +
-                              " procedure='" + procedure + "'" +
-                              " property='" + property + "'" +
-                              " from='" + from + "'" +
-                              " until='" + to + "'" +
-                              " color='" + color + "'" +
-                              "</istsos-chart>";
+            getDivId(function(id) { 
+              var component = "&lt;div id='" + id + "'&gt;&#10;" + 
+                                "  &lt;istsos-chart type='" + chartType + "'&#10;" +
+                                "   offering='" + offering + "'&#10;" +
+                                "   procedure='" + procedure + "'&#10;" +
+                                "   property='" + property + "'&#10;" +
+                                "   from='" + from + "'&#10;" +
+                                "   until='" + to + "'&#10;" +
+                                "   color='" + color + "'&#10;" +
+                                "   divId='" + id + "'&gt;&#10;" +
+                                "  &lt;/istsos-chart&gt;&#10;" +
+                              "&lt;/div&gt;";
 
-            $("#txtarea1").val("<link rel='import' href='default-widget.html' async>");
-            $("#txtarea2").val(divComp);
-            $("#txtarea3").val(component);
-
-            //$("#istsos-section").html("<h3>Embedded Chart:</h3>" + component);
+              $("#componenttxt pre").remove();
+              $("#componenttxt").append("<pre class='prettyprint'>" + component + "</pre>");
+              prettyPrint();  
+            });
           }
         }
       });
