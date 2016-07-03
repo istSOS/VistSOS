@@ -1,33 +1,71 @@
-function getData(offering, procedure, property, from, until, callback) {
-  var dataURL = "http://131.175.143.71/istsos/test?" +
-                "service=SOS&version=1.0.0&" +
-                "request=GetObservation&" + 
-                "offering=" +offering + "&" +
-                "procedure=" + procedure + "&" + 
-                "eventTime=" + from + "/" + until + "&" +
-                "observedProperty=" + property + "&" + 
-                //"aggregateInterval=PT24H&" + 
-                //"aggregateFunction=SUM&" +
-                "qualityIndex=True&" +
-                "qualityFilter=>110&" +
-                "responseFormat=application/json";
- 
-  var measurements = [];
+function getObservations(serverName, serviceName, offeringName, procedureName, propsNames, from, until, callback) {
+  var istsosContainer = new istsos.IstSOS();
+  var default_db = new istsos.Database("istsos", "localhost", "postgres", "postgres", 5432);
+  var server = new istsos.Server("istSOS-server", serverName, default_db);
 
-  $.getJSON(dataURL, function(data) {
-    // var data contains values, fields and elementCount
-    var data = jQuery.extend({}, data["ObservationCollection"].member[0].result.DataArray);
-    var values = data["values"].slice();
+  istsosContainer.addServer(server);
+  
+  var service = new istsos.Service(serviceName, server);
+  var offering = new istsos.Offering(offeringName, "", true, null, service);
+  var procedure = new istsos.Procedure(service, procedureName, "", "", "", 4326, 0, 0, 0, [], "insitu-fixed-point", "");
+ 
+  var props = [];
+  for (var i = 0; i < propsNames.length; i++) {
+    var name = "";
+    var urn = "";
+
+    if (propsNames[i] == "rainfall") {
+      var name = "air-rainfall"; 
+      var urn = "urn:ogc:def:parameter:x-istsos:1.0:meteo:air:rainfall";
+    } else if (propsNames[i] == "temperature") {
+      var name = "air-temperature"; 
+      var urn = "urn:ogc:def:parameter:x-istsos:1.0:meteo:air:temperature"; 
+    } else {}
+
+    var property = new istsos.ObservedProperty(service, name, urn, "", null, null);
+    props.push(property);
+  }
+
+  var year = moment(from).year();
+  var month = moment(from).month() + 1; // Momentjs returns month number starting from 0
+  var day = moment(from).date();
+  var hour = moment(from).hour();
+  var min = moment(from).minute();
+  var sec = moment(from).second();
+  var offset = 0;
+  var begin = new istsos.Date(year, month, day, hour, min, sec, offset, "");
+
+  var year = moment(until).year();
+  var month = moment(until).month() + 1;
+  var day = moment(until).date();
+  var hour = moment(until).hour();
+  var min = moment(until).minute();
+  var sec = moment(until).second();
+  var offset = 0;
+  var end = new istsos.Date(year, month, day, hour, min, sec, offset, "");
+
+
+  service.getObservations(offering, procedure, props, begin, end);
+  istsos.on(istsos.events.EventType.GETOBSERVATIONS, function(ev) {
     var measurements = [];
-      
+    var values = ev.getData()[0].result.DataArray.values;
+    //var fields = ev.getData()[0].result.DataArray.field;
+    
     for (var i = 0; i < values.length; i++) {
-      var measurement = {
-        "date": values[i][0],
-        "measurement": values[i][1]
+      //var var1 = fields[0].name; // Time
+      //var var2 = fields[1].name; // First property
+      
+      var measurement = new Object();
+      measurement["date"] = values[i][0];
+      
+      for (var j = 0; j < propsNames.length; j++) {
+        var propertyName = propsNames[j];
+        measurement[propertyName] = values[i][j+1]; 
       }
+      
       measurements.push(measurement);
     }
-    
+
     callback(measurements);
   });
 }

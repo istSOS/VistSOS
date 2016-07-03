@@ -3,6 +3,7 @@
     <meta charset="utf-8">
     <title>istSOS Chart Component</title>
     <script src="../bower_components/webcomponentsjs/webcomponents.min.js"></script>
+    <script src="../bower_components/javascript-core/compiled/istsos-core-compiled.js"></script>
     <script src="//d3js.org./d3.v3.min.js"></script>
     <script src="//vega.github.io/vega/vega.js"></script>
     <script src="//vega.github.io/vega-lite/vega-lite.js"></script>
@@ -32,17 +33,19 @@
         var jsonSpec = {};
         var measurements = [];
         var vegaMode = "vega-lite";
-        var divId = this.getAttribute("divId"); // For default values use: this.getAttribute("type") || "line"
-        var chartType = this.getAttribute("type");
+        var server = this.getAttribute("server");
+        var service = this.getAttribute("service");
         var offering = this.getAttribute("offering");
         var procedure = this.getAttribute("procedure");
-        var property = this.getAttribute("property");
+        var props = this.getAttribute("property").split(",");
         var from = this.getAttribute("from");
         var until = this.getAttribute("until");
+        var chartType = this.getAttribute("type");
         var color = this.getAttribute("color");
+        var divId = this.getAttribute("divId");
 
         if (moment.utc(from).isValid() && moment.utc(until).isValid()) {
-          getData(offering, procedure, property, from, until, loadSpec); // from data-provider.js
+          getObservations(server, service, offering, procedure, props, from, until, loadSpec); // from data-provider.js 
         }
 
         function loadSpec(data) {
@@ -68,6 +71,14 @@
             var suntil = moment(until).format("MMM d YYYY");
 
             jsonSpec.data[0].values = measurements;
+            var prop1 = props[0];
+            jsonSpec.data[0].format.parse[prop1] = jsonSpec.data[0].format.parse["measurement"];
+            delete jsonSpec.data[0].format.parse["measurement"];
+            jsonSpec.scales[1].domain.field = props[0];
+            jsonSpec.scales[3].domain.field = props[0];
+            jsonSpec.marks[0].marks[0].marks[0].properties.update.y.field = props[0];
+            jsonSpec.marks[1].marks[0].properties.update.y.field = props[0];
+
             jsonSpec.signals[1].init.expr = "datetime('" + sfrom + "')";
             jsonSpec.signals[2].init.expr = "datetime('" + sfrom + "')";
             jsonSpec.signals[2].expr = "time(brush_start) === time(brush_end) ? datetime('" + sfrom + "') : min(brush_start, brush_end)";
@@ -75,11 +86,16 @@
             jsonSpec.signals[3].expr = "time(brush_start) === time(brush_end) ? datetime('" + suntil + "') : max(brush_start, brush_end)";
 
             jsonSpec.marks[0].marks[0].marks[0].properties.update.fill.value = "#" + color;
+          } else if (chartType == "punch-card") {
+            jsonSpec.data.values = measurements;
+            jsonSpec.encoding.size.field = props[0];
+            jsonSpec.encoding.color.value = "#" + color;
           } else {
             jsonSpec.data.values = measurements;
+            jsonSpec.encoding.y.field = props[0];
             jsonSpec.encoding.color.value = "#" + color;
           }
-
+          console.log(JSON.stringify(jsonSpec));
           var embedSpec = { mode: vegaMode, spec: jsonSpec };
           vg.embed("#" + divId, embedSpec, function(error, result) { });
         }

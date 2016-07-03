@@ -1,0 +1,14 @@
+{
+  "name": "javascript-core",
+  "homepage": "https://github.com/WebPractice-LukaG/javascript-core",
+  "_release": "a9141c7660",
+  "_resolution": {
+    "type": "branch",
+    "branch": "master",
+    "commit": "a9141c7660296929e9596d626c9e095388cfd67c"
+  },
+  "_source": "https://github.com/WebPractice-LukaG/javascript-core.git",
+  "_target": "*",
+  "_originalSource": "https://github.com/WebPractice-LukaG/javascript-core.git",
+  "_direct": true
+}

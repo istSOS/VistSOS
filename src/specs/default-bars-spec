@@ -5,13 +5,13 @@
   },
   "mark": "bar",
   "encoding": {
-    "y": {
+    "x": {
       "timeUnit": "month", 
       "field": "date", 
       "type": "temporal", 
       "axis": {"shortTimeLabels": true, "offset": 2, "tickColor": "#00A800"}
     },
-    "x": {
+    "y": {
       "field": "measurement", 
       "aggregate": "sum", 
       "type": "quantitative", 

@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>istSOS testing page</title>
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+    <!-- <script type="text/javascript" src="src/closure-library/closure/goog/base.js"></script>
+    <script type="text/javascript">
+        goog.require('goog.net.XhrIo');
+        goog.require('goog.dom');
+        goog.require('goog.events');
+        goog.require('goog.events.Event');
+        goog.require('goog.events.EventTarget');
+        goog.require('goog.ui.Zippy');
+    </script>
+
+    <script type="text/javascript" src="src/IstSOS.js"></script>
+    <script type="text/javascript" src="src/EventHandling.js"></script>
+    <script type="text/javascript" src="src/Server.js"></script>
+    <script type="text/javascript" src="src/Service.js"></script>
+    <script type="text/javascript" src="src/Database.js"></script>
+    <script type="text/javascript" src="src/Configuration.js"></script>
+    <script type="text/javascript" src="src/Output.js"></script>
+    <script type="text/javascript" src="src/ProcedureBase.js"></script>
+    <script type="text/javascript" src="src/Procedure.js"></script>
+    <script type="text/javascript" src="src/VirtualProcedure.js"></script>
+    <script type="text/javascript" src="src/Offering.js"></script>
+    <script type="text/javascript" src="src/ObservedProperty.js"></script>
+    <script type="text/javascript" src="src/DataQuality.js"></script>
+    <script type="text/javascript" src="src/Date.js"></script>
+    <script type="text/javascript" src="src/UnitOfMeasure.js"></script>
+    <script type="text/javascript" src="src/DataQuality.js"></script> -->
+    <script type="text/javascript" src="istsos-core-compiled.js"></script>
+
+    <script>
+        /** RESPONSE JSON STYLING  */
+        function log(obj, str) {
+            document.getElementById('title').innerHTML = str;
+            document.getElementById('json').innerHTML = test_json.prettyPrint(obj);
+        }
+
+        var test_json = {
+            replacer: function (match, pIndent, pKey, pVal, pEnd) {
+                var key = '<span class=json-key>';
+                var val = '<span class=json-value>';
+                var str = '<span class=json-string>';
+                var r = pIndent || '';
+                if (pKey)
+                    r = r + key + pKey.replace(/[": ]/g, '') + '</span>: ';
+                if (pVal)
+                    r = r + (pVal[0] == '"' ? str : val) + pVal + '</span>';
+                return r + (pEnd || '');
+            },
+            prettyPrint: function (obj) {
+                var jsonLine = /^( *)("[\w]+": )?("[^"]*"|[\w.+-]*)?([,[{])?$/mg;
+                return JSON.stringify(obj, null, 3)
+                        .replace(/&/g, '&amp;').replace(/\\"/g, '&quot;')
+                        .replace(/</g, '&lt;').replace(/>/g, '&gt;')
+                        .replace(jsonLine, test_json.replacer);
+            }
+        };
+    </script>
+    <style>
+        pre {
+            background-color: ghostwhite;
+            border: 1px solid silver;
+            padding: 10px 20px;
+            margin: 20px;
+            font-weight: bold;
+            font-size: 12pt;
+        }
+
+        .json-key {
+            color: brown;
+        }
+
+        .json-value {
+            color: navy;
+        }
+
+        .json-string {
+            color: olive;
+        }
+
+        button {
+            border-radius: 10px;
+            height: 30px;
+        }
+
+        #first, #second {
+            padding: 10px;
+        }
+        a {
+            cursor: pointer;
+        }
+
+    </style>
+</head>
+<body>
+<div class="container-fluid">
+    <div class="row">
+        <div id="first" class="col-md-3">
+            <ul class="list-group">
+                <li class="list-group-item" data-toggle="collapse" data-target="#server_content"><a>SERVER METHODS</a></li>
+                <ul id="server_content" class="collapse list-group">
+                    <li class="list-group-item"><button class="btn btn-success" onclick="getServiceReq()">GET SERVICE</button></li>
+                    <li class="list-group-item"><button class="btn btn-success" onclick="registerSERVICE()">POST SERVICE</button></li>
+                    <li class="list-group-item"><button class="btn btn-success" onclick="deleteSERVICE()">DELETE SERVICE</button></li>
+                    <li class="list-group-item"><button class="btn btn-success" onclick="getStatusReq()">GET STATUS</button></li>
+                    <li class="list-group-item"><button class="btn btn-success" onclick="getAbout()">GET ABOUT INFO</button></li>
+                    <li class="list-group-item"><button class="btn btn-success" onclick="getConf()">GET CONFIGURATION</button></li>
+                    <li class="list-group-item"><button class="btn btn-success" onclick="getDb()">GET DEFAULT DATABASE</button></li>
+                    <li class="list-group-item"><button class="btn btn-success" onclick="getList()">GET SERVICES</button></li>
+                </ul>
+                <li class="list-group-item" data-toggle="collapse" data-target="#conf_content"><a>CONFIGURATION METHODS</a></li>
+                <ul id="conf_content" class="collapse list-group">
+                    <li class="list-group-item"><button class="btn btn-success" onclick="getConfigurationReq()">GET CONFIGURATION</button></li>
+                    <li class="list-group-item"><button class="btn btn-success" onclick="getProviderReq()">GET PROVIDER</button></li>
+                    <li class="list-group-item"><button class="btn btn-success" onclick="putProviderReq()">PUT PROVIDER</button></li>
+                    <li class="list-group-item"><button class="btn btn-success" onclick="getIdentReq()">GET IDENTIFICATION</button></li>
+                    <li class="list-group-item"><button class="btn btn-success" onclick="putIdentificationReq()">PUT IDENTIFICATION</button></li>
+                    <li class="list-group-item"><button class="btn btn-success" onclick="getCoordSysReq()">GET COORDINATE SYSTEM</button></li>
+                    <li class="list-group-item"><button class="btn btn-success" onclick="putCRS()">PUT COORDINATE SYSTEM</button></li>
+                    <li class="list-group-item"><button class="btn btn-success" onclick="mqtt()">GET MQTT</button></li>
+                    <li class="list-group-item"><button class="btn btn-success" onclick="putMqtt()">PUT MQTT</button></li>
+                    <li class="list-group-item"><button class="btn btn-success" onclick="getOC()">GET OBSERVATION CONFIG</button></li>
+                    <li class="list-group-item"><button class="btn btn-success" onclick="putOC()">PUT OBSERVATION CONFIG</button></li>
+                    <li class="list-group-item"><button class="btn btn-success" onclick="getProxyReq()">GET PROXY</button></li>
+                    <li class="list-group-item"><button class="btn btn-success" onclick="putProxy()">PUT PROXY</button></li>
+                    <li class="list-group-item"><button class="btn btn-success" onclick="getEPSGS()">GET EPSG CODES</button></li>
+                </ul>
+                <li class="list-group-item" data-toggle="collapse" data-target="#database_content"><a>DATABASE METHODS</a></li>
+                <ul id="database_content" class="collapse list-group">
+                    <li class="list-group-item"><button class="btn btn-success" onclick="getDatabase()">GET DATABASE</button></li>
+                    <li class="list-group-item"><button class="btn btn-success" onclick="putDatabase()">PUT DATABASE</button></li>
+                    <li class="list-group-item"><button class="btn btn-success" onclick="validateDB()">TEST CONNECTION</button></li>
+                </ul>
+                <li class="list-group-item" data-toggle="collapse" data-target="#service_content"><a>SERVICE METHODS</a></li>
+                <ul id="service_content" class="collapse list-group">
+                    <li class="list-group-item"><button class="btn btn-success" onclick="getOffNames()">GET OFFERING NAMES</button></li>
+                    <li class="list-group-item"><button class="btn btn-success" onclick="getOffs()">GET OFFERINGS</button></li>
+                    <li class="list-group-item"><button class="btn btn-success" onclick="regOffering()">POST OFFERING</button></li>
+                    <li class="list-group-item"><button class="btn btn-success" onclick="getProcs()">GET PROCEDURES</button></li>
+                    <li class="list-group-item"><button class="btn btn-success" onclick="getProc()">GET PROCEDURE</button></li>
+                    <li class="list-group-item"><button class="btn btn-success" onclick="registerPROCEDURE()">POST PROCEDURE</button></li>
+                    <li class="list-group-item"><button class="btn btn-success" onclick="getVProcs()">GET VIRTUAL PROCEDURES</button></li>
+                    <li class="list-group-item"><button class="btn btn-success" onclick="getVProc()">GET VIRTUAL PROCEDURE</button></li>
+                    <li class="list-group-item"><button class="btn btn-success" onclick="registerVPROCEDURE()">POST VIRTUAL PROCEDURE</button></li>
+                    <li class="list-group-item"><button class="btn btn-success" onclick="getOPS()">GET OBSERVED PROPERTIES</button> </li>
+                    <li class="list-group-item"><button class="btn btn-success" onclick="getOP()">GET OBSERVED PROPERTY</button> </li>
+                    <li class="list-group-item"><button class="btn btn-success" onclick="registerOP()">POST OBSERVED PROPERTY</button> </li>
+                    <li class="list-group-item"><button class="btn btn-success" onclick="getDQs()">GET DATA QUALITIES</button></li>
+                    <li class="list-group-item"><button class="btn btn-success" onclick="getDQ()">GET DATA QUALITY</button></li>
+                    <li class="list-group-item"><button class="btn btn-success" onclick="registerDQ()">POST DATA QUALITY</button></li>
+                    <li class="list-group-item"><button class="btn btn-success" onclick="getUOMs()">GET UNITS OF MEASURE</button></li>
+                    <li class="list-group-item"><button class="btn btn-success" onclick="getUOM()">GET UNIT OF MEASURE</button> </li>
+                    <li class="list-group-item"><button class="btn btn-success" onclick="registerUOM()">POST UNIT OF MEASURE</button> </li>
+                    <li class="list-group-item"><button class="btn btn-success" onclick="getServiceDatabase()">GET SERVICE DATABASE</button> </li>
+                    <li class="list-group-item"><button class="btn btn-success" onclick="getSysTypes()">GET SYSTEM TYPES</button> </li>
+                    <li class="list-group-item"><button class="btn btn-success" onclick="getGEOJSON()">GET FEATURE COLLECTION</button> </li>
+                    <li class="list-group-item"><button class="btn btn-success" onclick="getOBSERVATIONS()">GET OBSERVATIONS</button> </li>
+                    <li class="list-group-item"><button class="btn btn-success" onclick="getOBSERVATIONDATA()">GET OBSERVATIONS BY PROPERTY</button> </li>
+                </ul>
+                <li class="list-group-item" data-toggle="collapse" data-target="#offering_content"><a>OFFERING METHODS</a></li>
+                <ul id="offering_content" class="collapse list-group">
+                    <li class="list-group-item"><button class="btn btn-success" onclick="putOffering()">PUT OFFERING</button></li>
+                    <li class="list-group-item"><button class="btn btn-success" onclick="delOffering()">DELETE OFFERING</button></li>
+                    <li class="list-group-item"><button class="btn btn-success" onclick="getMembers()">MEMBER PROCEDURES</button></li>
+                    <li class="list-group-item"><button class="btn btn-success" onclick="getNonMembers()">NON-MEMBER PROCEDURES</button></li>
+                </ul>
+                <li class="list-group-item" data-toggle="collapse" data-target="#procedure_content"><a>PROCEDURE METHODS</a></li>
+                <ul id="procedure_content" class="collapse list-group">
+                    <li class="list-group-item"><button class="btn btn-success" onclick="putPROCEDURE()">PUT PROCEDURE</button></li>
+                    <li class="list-group-item"><button class="btn btn-success" onclick="deletePROCEDURE()">DELETE PROCEDURE</button></li>
+                    <li class="list-group-item"><button class="btn btn-success" onclick="addMembership()">POST MEMBERSHIP</button></li>
+                    <li class="list-group-item"><button class="btn btn-success" onclick="removeMembership()">DELETE MEMBERSHIP</button></li>
+                </ul>
+                <li class="list-group-item" data-toggle="collapse" data-target="#virtual_procedure_content"><a>VIRTUAL PROCEDURE METHODS</a></li>
+                <ul id="virtual_procedure_content" class="collapse list-group">
+                    <li class="list-group-item"><button class="btn btn-success" onclick="getRCurve()">GET RATING CURVE</button></li>
+                    <li class="list-group-item"><button class="btn btn-success" onclick="registerRCURVE()">POST RATING CURVE</button></li>
+                    <li class="list-group-item"><button class="btn btn-success" onclick="deleteRCURVE()">DELETE RATING CURVE</button></li>
+                    <li class="list-group-item"><button class="btn btn-success" onclick="getCodeReq()">GET CODE</button></li>
+                    <li class="list-group-item"><button class="btn btn-success" onclick="registerCODE()">POST CODE</button></li>
+                    <li class="list-group-item"><button class="btn btn-success" onclick="putCODE()">PUT CODE</button></li>
+                    <li class="list-group-item"><button class="btn btn-success" onclick="deleteCODE()">DELETE CODE</button></li>
+                    <li class="list-group-item"><button class="btn btn-success" onclick="updateVPROCEDURE()">PUT VIRTUAL PROCEDURE</button></li>
+                    <li class="list-group-item"><button class="btn btn-success" onclick="deleteVPROCEDURE()">DELETE VIRTUAL PROCEDURE</button></li>
+                    <li class="list-group-item"><button class="btn btn-success" onclick="addMembershipVP()">POST MEMBERSHIP</button></li>
+                    <li class="list-group-item"><button class="btn btn-success" onclick="removeMembershipVP()">DELETE MEMBERSHIP</button></li>
+                </ul>
+                <li class="list-group-item" data-toggle="collapse" data-target="#uom_content"><a>UNIT OF MEASURE METHODS</a></li>
+                <ul id="uom_content" class="collapse list-group">
+                    <li class="list-group-item"><button class="btn btn-success" onclick="putUOM()">PUT UNIT OF MEASURE</button></li>
+                    <li class="list-group-item"><button class="btn btn-success" onclick="deleteUOM()">DELETE UNIT OF MEASURE</button></li>
+                </ul>
+                <li class="list-group-item" data-toggle="collapse" data-target="#dq_content"><a>DATA QUALITY METHODS</a></li>
+                <ul id="dq_content" class="collapse list-group">
+                    <li class="list-group-item"><button class="btn btn-success" onclick="updateDQ()">PUT DATA QUALITY</button></li>
+                    <li class="list-group-item"><button class="btn btn-success" onclick="deleteDQ()">DELETE DATA QUALITY</button></li>
+                </ul>
+                <li class="list-group-item" data-toggle="collapse" data-target="#op_content"><a>OBSERVED PROPERTY METHODS</a></li>
+                <ul id="op_content" class="collapse list-group">
+                    <li class="list-group-item"><button class="btn btn-success" onclick="putOP()">PUT OBSERVED PROPERTY</button></li>
+                    <li class="list-group-item"><button class="btn btn-success" onclick="deleteOP()">DELETE OBSERVED PROPERTY</button></li>
+                </ul>
+            </ul>
+        </div>
+        <div id="second" class="col-md-9">
+            <h4 id="title" class="text-center"></h4>
+            <pre id="json"></pre>
+        </div>
+    </div>
+</div>
+<script type="text/javascript" src="istsos-test.js"></script>
+
+</body>
+</html>

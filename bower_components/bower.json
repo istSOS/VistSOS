@@ -1,0 +1,20 @@
+{
+  "name": "VistSOS dependencies",
+  "homepage": "https://github.com/felipe07/VistSOS-1",
+  "authors": [
+    "felipe07"
+  ],
+  "description": "VistSOS dependencies",
+  "main": "bower.json",
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "webcomponentsjs": "^0.7.22"
+  }
+}
