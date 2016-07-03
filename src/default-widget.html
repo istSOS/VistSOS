@@ -95,7 +95,7 @@
             jsonSpec.encoding.y.field = props[0];
             jsonSpec.encoding.color.value = "#" + color;
           }
-          console.log(JSON.stringify(jsonSpec));
+          
           var embedSpec = { mode: vegaMode, spec: jsonSpec };
           vg.embed("#" + divId, embedSpec, function(error, result) { });
         }
