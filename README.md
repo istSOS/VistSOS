@@ -9,13 +9,14 @@ https://wiki.osgeo.org/wiki/VistSOS_Data_Visualization_Framework
 To use VistSOS modify your HTML document like this:
 
 1. Inside the head section include:
-
+  ```html
   <pre>
   <link rel="import" href="default-widget.html" async>
   </pre>
+  ```
 
 2. Inside the body of the application include a declaration of a chart with some parameters, e.g:
-
+  ```html
   <pre>
   <div id='f2a24b67'>
     <istsos-chart type="multivariable"
@@ -31,6 +32,6 @@ To use VistSOS modify your HTML document like this:
     </istsos-chart>
   </div>
   </pre>
-
+  ```
 The id of the div and the parameter divId should be the same.
 
