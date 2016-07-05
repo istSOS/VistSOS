@@ -17,7 +17,7 @@ To use VistSOS modify your HTML document like this:
   ```html
   <div id='f2a24b67'>
     <istsos-chart type="multivariable"
-     server="http://131.175.143.71/istsos"
+     server="http://localhost/istsos"
      service="test"
      offering="offering1"
      procedure="Milano2"
