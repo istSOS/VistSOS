@@ -5,12 +5,12 @@
   "mark": "circle",
   "encoding": {
     "y": {
-      "field": "date",
+      "field": "Time",
       "type": "temporal",
       "timeUnit": "day"
     },
     "x": {
-      "field": "date",
+      "field": "Time",
       "type": "temporal",
       "timeUnit": "hours"
     },

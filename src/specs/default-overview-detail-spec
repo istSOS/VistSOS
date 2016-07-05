@@ -36,7 +36,7 @@
     {
       "name": "temp", 
       "values": "[]",
-      "format": {"type": "json", "parse": {"measurement": "number", "date": "date"}}
+      "format": {"type": "json", "parse": {"measurement": "number", "Time": "date"}}
     }
   ],
 
@@ -45,7 +45,7 @@
       "name": "xOverview",
       "type": "time",
       "range": [0, 720],
-      "domain": {"data": "temp", "field": "date"}
+      "domain": {"data": "temp", "field": "Time"}
     },
     {
       "name": "yOverview",
@@ -100,7 +100,7 @@
               "from": {"data": "temp"},
               "properties": {
                 "update": {
-                  "x": {"scale": "xDetail", "field": "date"},
+                  "x": {"scale": "xDetail", "field": "Time"},
                   "y": {"scale": "yDetail", "field": "measurement"},
                   "y2": {"scale": "yDetail", "value": 0},
                   "fill": {"value": "#00A800"}
@@ -133,7 +133,7 @@
           "from": {"data": "temp"},
           "properties": {
             "update": {
-              "x": {"scale": "xOverview", "field": "date"},
+              "x": {"scale": "xOverview", "field": "Time"},
               "y": {"scale": "yOverview", "field": "measurement"},
               "y2": {"scale": "yOverview", "value": 0},
               "fill": {"value": "#00A800"}

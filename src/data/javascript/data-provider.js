@@ -49,23 +49,25 @@ function getObservations(serverName, serviceName, offeringName, procedureName, p
   istsos.on(istsos.events.EventType.GETOBSERVATIONS, function(ev) {
     var measurements = [];
     var values = ev.getData()[0].result.DataArray.values;
-    //var fields = ev.getData()[0].result.DataArray.field;
+    var fields = ev.getData()[0].result.DataArray.field;
     
     for (var i = 0; i < values.length; i++) {
-      //var var1 = fields[0].name; // Time
-      //var var2 = fields[1].name; // First property
-      
       var measurement = new Object();
-      measurement["date"] = values[i][0];
-      
-      for (var j = 0; j < propsNames.length; j++) {
-        var propertyName = propsNames[j];
-        measurement[propertyName] = values[i][j+1]; 
-      }
-      
+      for (var j = 0; j < values[i].length; j++) {
+        var propertyName = fields[j].name;
+        for (var k = 0; k < propsNames.length; k ++) {
+          if (propertyName.includes(propsNames[k]) && !propertyName.includes(":")) {
+            propertyName = propsNames[k];
+          }
+        }
+        // Don't include measurements equal to -999, this should change after Javascript Core API accepts QI paramemetees
+        var value = values[i][j];
+        if (!value.includes("-999")) {
+          measurement[propertyName] = values[i][j];   
+        }
+      } 
       measurements.push(measurement);
     }
-
     callback(measurements);
   });
 }

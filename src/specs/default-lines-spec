@@ -7,7 +7,7 @@
   "encoding": {
     "x": {
       "timeUnit": "monthdate", 
-      "field": "date", 
+      "field": "Time", 
       "type": "temporal", 
       "axis": {"shortTimeLabels": true, "offset": 2, "ticks": 12, "tickColor": "#00A800"}
     },
