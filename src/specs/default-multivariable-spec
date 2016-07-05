@@ -1,0 +1,73 @@
+{ 
+  "width": 720,
+  "height": 480,
+  "description": "Variation over time",
+  "data": [
+    {
+      "name": "measurements",
+      "values": [],
+      "format": {
+        "type": "json",
+        "parse": {"value1": "number","value2": "number","Time": "date"}
+      }
+    }
+  ],
+  "scales": [
+    {
+      "name": "x",
+      "type": "time",
+      "range": "width",
+      "domain": {"data": "measurements","field": "Time"}
+    },
+    {
+      "name": "color",
+      "type": "ordinal",
+      "domain": {"data": "measurements","field": "symbol"},
+      "range": "category10"
+    }
+  ],
+  "axes": [
+    {"type": "x","scale": "x","title": "Time"}
+  ],
+  "legends": [{"fill": "color","title": "Measurement"}],
+  "marks": [
+    {
+      "type": "group",
+      "from": {
+        "data": "measurements",
+        "transform": [{"type": "facet","groupby": ["symbol"]}]
+      },
+      "marks": [
+        {
+          "type": "line",
+          "properties": {
+            "enter": {
+              "x": {"scale": "x","field": "Time"},
+              "stroke": {"scale": "color","field": "symbol"},
+              "strokeWidth": {"value": 2}
+            }
+          }
+        },
+        {
+          "type": "text",
+          "from": {
+            "transform": [
+              {
+                "type": "filter",
+                "test": "datum.date == 1267430400000"
+              }
+            ]
+          },
+          "properties": {
+            "enter": {
+              "x": {"scale": "x","field": "Time","offset": 2},
+              "fill": {"scale": "color","field": "symbol"},
+              "text": {"field": "symbol"},
+              "baseline": {"value": "middle"}
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

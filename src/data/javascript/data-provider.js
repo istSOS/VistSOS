@@ -52,22 +52,30 @@ function getObservations(serverName, serviceName, offeringName, procedureName, p
     var fields = ev.getData()[0].result.DataArray.field;
     
     for (var i = 0; i < values.length; i++) {
-      var measurement = new Object();
-      for (var j = 0; j < values[i].length; j++) {
-        var propertyName = fields[j].name;
-        for (var k = 0; k < propsNames.length; k ++) {
-          if (propertyName.includes(propsNames[k]) && !propertyName.includes(":")) {
-            propertyName = propsNames[k];
+      // Discard sub-arrays with measuremente values equal to -999.00000. Should be removed once Javascript Core supports QI parameters
+      if (!(values[i].indexOf("-999.000000") > -1)) {
+        for (var j = 0; j < propsNames.length; j ++) {
+          var propertyName = propsNames[j];
+          var measurement = new Object();
+          for (var k = 0; k < values[i].length; k++) {
+            var fieldName = fields[k].name; // Take property name from Fields array
+            var value = values[i][k]; // Value obtained from array retrieved by getObservations
+
+            if (fieldName === "Time") { 
+              measurement[fieldName] = value;   
+            } else if (fieldName.includes(propertyName) && !fieldName.includes(":")) {
+              measurement[propertyName] = parseFloat(value); 
+              measurement["uom"] = fields[k].uom; // Adds Unit of Measurement. This attribute will be the name of the Y axe
+            } else if (fieldName.includes(propertyName)) {
+              measurement[fieldName] = value;   
+            }
+            measurement["symbol"] = propertyName;
           }
+          measurements.push(measurement);
         }
-        // Don't include measurements equal to -999, this should change after Javascript Core API accepts QI paramemetees
-        var value = values[i][j];
-        if (!value.includes("-999")) {
-          measurement[propertyName] = values[i][j];   
-        }
-      } 
-      measurements.push(measurement);
+      }
     }
+
     callback(measurements);
   });
 }
