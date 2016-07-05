@@ -29,7 +29,7 @@ To use VistSOS modify your HTML document like this:
     </istsos-chart>
   </div>
   ```
-The property type can take one of the following values: 
+The property 'type' can take one of the following values: 
 
   * line
   * bar
@@ -38,5 +38,5 @@ The property type can take one of the following values:
   * overview-detail
   * multivariable 
 
-The id of the div and the parameter divId should be the same.
+The id of the div and the parameter 'divId' should be the same.
 
