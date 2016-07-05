@@ -15,7 +15,6 @@ To use VistSOS modify your HTML document like this:
 
 2. Inside the body of the application include a declaration of a chart with some parameters, e.g:
   ```html
-  <pre>
   <div id='f2a24b67'>
     <istsos-chart type="multivariable"
      server="http://131.175.143.71/istsos"
@@ -29,7 +28,6 @@ To use VistSOS modify your HTML document like this:
      divId="f2a24b67">
     </istsos-chart>
   </div>
-  </pre>
   ```
 The id of the div and the parameter divId should be the same.
 
