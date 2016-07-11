@@ -5,15 +5,17 @@
 </head>
 <body>
   <div id='f2a24b67'>
-    <istsos-chart type='punch-card'
+    <istsos-chart type='line'
      server="http://131.175.143.71/istsos"
      service="test"
      offering='offering1'
-     procedure='MI_Lambrate_Temperatura'
-     property='temperature'
+     procedure='Milano2'
+     property='temperature,rainfall'
      from='2015-01-01T13:46'
      until='2015-06-30T13:46'
      color='000000'
+     color2='FF0000'
+     strokeWidth='2'
      aggregate="stdev"
      divId='f2a24b67'>
     </istsos-chart>

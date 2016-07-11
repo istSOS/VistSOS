@@ -44,7 +44,7 @@
             "enter": {
               "x": {"scale": "x","field": "Time"},
               "stroke": {"scale": "color","field": "symbol"},
-              "strokeWidth": {"value": 2}
+              "strokeWidth": {"value": 1}
             }
           }
         },

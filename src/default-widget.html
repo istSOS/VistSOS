@@ -58,8 +58,10 @@
           console.log("Please specify all the mandatory parameters.")
         } else {
           // Setting not  mandatory parameters with default values
-          var chartType = this.getAttribute("type");
-          var color = this.getAttribute("color");
+          var chartType = this.getAttribute("type") || "line";
+          var color = this.getAttribute("color") || "00A800";
+          var color2 = this.getAttribute("color2") || "00A800";
+          var strokeWidth = parseInt(this.getAttribute("strokeWidth")) || 1;
           // Aggregate function applied when punch-card chart is selected
           var aggregate = this.getAttribute("aggregate") || "average";
           var divId = this.getAttribute("divId");
@@ -95,14 +97,15 @@
               var suntil = moment(until).format("MMM d YYYY");
 
               jsonSpec.data[0].values = measurements;
-              var prop1 = props[0];
-              jsonSpec.data[0].format.parse[prop1] = jsonSpec.data[0].format.parse["measurement"];
+              var propertyName = props[0];
+              jsonSpec.data[0].format.parse[propertyName] = jsonSpec.data[0].format.parse["measurement"];
               delete jsonSpec.data[0].format.parse["measurement"];
 
-              jsonSpec.scales[1].domain.field = props[0];
-              jsonSpec.scales[3].domain.field = props[0];
-              jsonSpec.marks[0].marks[0].marks[0].properties.update.y.field = props[0];
-              jsonSpec.marks[1].marks[0].properties.update.y.field = props[0];
+              jsonSpec.scales[1].domain.field = propertyName;
+              jsonSpec.scales[3].domain.field = propertyName;
+              jsonSpec.marks[0].axes[1].title = propertyName + "(" + uoms[propertyName] + ")";
+              jsonSpec.marks[0].marks[0].marks[0].properties.update.y.field = propertyName;
+              jsonSpec.marks[1].marks[0].properties.update.y.field = propertyName;
 
               jsonSpec.signals[1].init.expr = "datetime('" + sfrom + "')";
               jsonSpec.signals[2].init.expr = "datetime('" + sfrom + "')";
@@ -111,6 +114,7 @@
               jsonSpec.signals[3].expr = "time(brush_start) === time(brush_end) ? datetime('" + suntil + "') : max(brush_start, brush_end)";
 
               jsonSpec.marks[0].marks[0].marks[0].properties.update.fill.value = "#" + color;
+              jsonSpec.marks[1].marks[0].properties.update.fill.value = "#" + color2;
             } else if (chartType == "multivariable") {
               jsonSpec.data[0].values = measurements;
             
@@ -163,7 +167,7 @@
  
                 enterProperty["scale"] = scaleId;
                 enterProperty["field"] = propertyName;
-              
+                
                 if (i > 0) {
                   jsonSpec.marks[0].marks[0].properties.enter[scaleId] = enterProperty;
                   jsonSpec.marks[0].marks[1].properties.enter[scaleId] = enterProperty;
@@ -171,6 +175,8 @@
                   jsonSpec.marks[0].marks[0].properties.enter["y"] = enterProperty;
                   jsonSpec.marks[0].marks[1].properties.enter["y"] = enterProperty;
                 }
+
+                jsonSpec.marks[0].marks[0].properties.enter.strokeWidth.value = strokeWidth;
               }
             } else if (chartType == "punch-card") {
               var propertyName = props[0]

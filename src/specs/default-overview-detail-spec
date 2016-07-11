@@ -82,7 +82,7 @@
       },
       "axes": [
         {"type": "x", "scale": "xDetail"},
-        {"type": "y", "scale": "yDetail"}
+        {"type": "y", "scale": "yDetail", "title": ""}
       ],
       "marks": [
         {
