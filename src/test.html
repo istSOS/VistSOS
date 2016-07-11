@@ -5,7 +5,7 @@
 </head>
 <body>
   <div id='f2a24b67'>
-    <istsos-chart type='line'
+    <istsos-chart type='multivariable'
      server="http://131.175.143.71/istsos"
      service="test"
      offering='offering1'
@@ -17,6 +17,9 @@
      color2='FF0000'
      strokeWidth='2'
      aggregate="stdev"
+     timeUnit="month"
+     timeUnit2="hours",
+     timeFormat="%b %d, %Y",
      divId='f2a24b67'>
     </istsos-chart>
   </div>

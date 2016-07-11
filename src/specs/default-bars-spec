@@ -6,7 +6,7 @@
   "mark": "bar",
   "encoding": {
     "x": {
-      "timeUnit": "month", 
+      "timeUnit": "monthdate", 
       "field": "Time", 
       "type": "temporal", 
       "axis": {"shortTimeLabels": true, "offset": 2, "tickColor": "#00A800"}

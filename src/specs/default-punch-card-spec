@@ -7,7 +7,7 @@
     "y": {
       "field": "Time",
       "type": "temporal",
-      "timeUnit": "day"
+      "timeUnit": "month"
     },
     "x": {
       "field": "Time",

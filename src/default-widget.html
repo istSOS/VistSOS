@@ -64,6 +64,13 @@
           var strokeWidth = parseInt(this.getAttribute("strokeWidth")) || 1;
           // Aggregate function applied when punch-card chart is selected
           var aggregate = this.getAttribute("aggregate") || "average";
+          // Time unit parameter applied when line, bar, punch-card or scatterplot chart is selected
+          var timeUnit = this.getAttribute("timeUnit") || "month";
+          // Second time unit parameter. Only applied when punch-card chart is selected
+          var timeUnit2 = this.getAttribute("timeUnit2") || "hours";
+          // Time format to apply when multivariable chart is selected
+          var timeFormat = this.getAttribute("timeFormat") || "";
+
           var divId = this.getAttribute("divId");
 
           if (moment.utc(from).isValid() && moment.utc(until).isValid()) {
@@ -146,7 +153,8 @@
                 jsonSpec.scales.push(yscale);
               }
              
-              // Creation of axes, one for each scale          
+              // Creation of axes, one for each scale
+              jsonSpec.axes[0].format = timeFormat;
               for (var i = 0; i < props.length; i++) {
                 var propertyName = props[i];
                 var yaxe = new Object();
@@ -186,9 +194,12 @@
               jsonSpec.encoding.size.aggregate = aggregate;
               jsonSpec.encoding.size.title = aggregate + " - " + propertyName + "(" + uoms[propertyName] + ")";
               jsonSpec.encoding.color.value = "#" + color;
+              jsonSpec.encoding.y.timeUnit = timeUnit;
+              jsonSpec.encoding.x.timeUnit = timeUnit2;
             } else {
               var propertyName = props[0]
               jsonSpec.data.values = measurements;
+              jsonSpec.encoding.x.timeUnit = timeUnit;
               jsonSpec.encoding.y.field = propertyName;
               jsonSpec.encoding.y.title = propertyName + "(" + uoms[propertyName] + ")";
               jsonSpec.encoding.color.value = "#" + color;

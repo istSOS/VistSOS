@@ -27,7 +27,12 @@
     }
   ],
   "axes": [
-    {"type": "x","scale": "x","title": "Time"}
+    {
+      "type": "x",
+      "scale": "x",
+      "title": "Time",
+      "format": ""
+    }
   ],
   "legends": [{"fill": "color","title": "Measurement"}],
   "marks": [
