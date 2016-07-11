@@ -1,6 +1,6 @@
 # VistSOS
 
-The VistSOS data visualization framework will allow users to configure and customize static and dynamic charts of data coming from istSOS. This visualizations can be included in external websites as Web Components with minimum configuration effort.
+The VistSOS data visualization framework will allow users to configure and customize static and dynamic charts populated with data coming from istSOS. This visualizations can be included in external websites as Web Components with minimum configuration effort.
 
 For more information about this project:
 
@@ -13,7 +13,7 @@ To use VistSOS modify your HTML document like this:
   <link rel="import" href="default-widget.html" async>
   ```
 
-2. Inside the body of the application include a declaration of a chart with some parameters, e.g:
+2. Inside the body of the application include a declaration of a chart with some parameters, e.g.
   ```html
   <div id="f2a24b67">
     <istsos-chart type="multivariable"
@@ -42,7 +42,7 @@ Note the id of the div and the parameter 'divId' of the istsos-chart element sho
 
 VistSOS support the following list of configuration options:
 
-  * server: The server address to access istSOS.
+  * <b>server:</b> The server address to access istSOS.
   * service: A service configured in istSOS.
   * offering: The offering associated with the procedure.
   * procedure: A procedure configured in istSOS.
