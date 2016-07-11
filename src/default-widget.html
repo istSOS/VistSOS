@@ -32,144 +32,164 @@
       proto.createdCallback = function() {
         var jsonSpec = {};
         var measurements = [];
+        var uoms = new Object();
         var vegaMode = "vega-lite";
+
+        // Mandatory parameters
         var server = this.getAttribute("server");
         var service = this.getAttribute("service");
         var offering = this.getAttribute("offering");
         var procedure = this.getAttribute("procedure");
-        var propsInput = this.getAttribute("property").split(",");
-        var props = propsInput.join("|").toLowerCase().split("|");
+        var props = null;
+        try {
+          props = this.getAttribute("property").toLowerCase().split(",");
+          if (props.join("|").includes(" ") || props.indexOf("") > -1) { 
+            props = null;
+            throw new Error("Empty strings or spaces are not allowed as observed property values."); 
+          }
+        } catch(e) {
+          console.log(e);
+        }
         var from = this.getAttribute("from");
         var until = this.getAttribute("until");
-        var chartType = this.getAttribute("type");
-        var color = this.getAttribute("color");
-        var divId = this.getAttribute("divId");
 
-        if (moment.utc(from).isValid() && moment.utc(until).isValid()) {
-          getObservations(server, service, offering, procedure, props, from, until, loadSpec); // from data-provider.js 
-        }
+        // If mandatory parameters are not present, don't execute chart generation
+        if (server == null || service == null || offering == null || procedure == null || props == null || from == null || until == null) {
+          console.log("Please specify all the mandatory parameters.")
+        } else {
+          // Setting not  mandatory parameters with default values
+          var chartType = this.getAttribute("type");
+          var color = this.getAttribute("color");
+          // Aggregate function applied when punch-card chart is selected
+          var aggregate = this.getAttribute("aggregate") || "average";
+          var divId = this.getAttribute("divId");
 
-        function loadSpec(data) {
-          measurements = data;
+          if (moment.utc(from).isValid() && moment.utc(until).isValid()) {
+            getObservations(server, service, offering, procedure, props, from, until, loadSpec); // from data-provider.js 
+          }
+
+          function loadSpec(data, units) {
+            measurements = data;
+            uoms = units;
         
-          if (chartType == "line") {
-            getJSONSpec("default-lines-spec", embedChart); // from util.js
-          } else if (chartType == "bar") {
-            getJSONSpec("default-bars-spec", embedChart);
-          } else if (chartType == "punch-card") {
-            getJSONSpec("default-punch-card-spec", embedChart);
-          } else if (chartType == "scatterplot") {
-            getJSONSpec("default-scatterplot-spec", embedChart);
-          } else if (chartType == "overview-detail") {
-            vegaMode = "vega";
-            getJSONSpec("default-overview-detail-spec", embedChart);
-          } else if (chartType == "multivariable") {
-            vegaMode = "vega";
-            getJSONSpec("default-multivariable-spec", embedChart);
+            if (chartType == "line") {
+              getJSONSpec("default-lines-spec", embedChart); // from util.js
+            } else if (chartType == "bar") {
+              getJSONSpec("default-bars-spec", embedChart);
+            } else if (chartType == "punch-card") {
+              getJSONSpec("default-punch-card-spec", embedChart);
+            } else if (chartType == "scatterplot") {
+              getJSONSpec("default-scatterplot-spec", embedChart);
+            } else if (chartType == "overview-detail") {
+              vegaMode = "vega";
+              getJSONSpec("default-overview-detail-spec", embedChart);
+            } else if (chartType == "multivariable") {
+              vegaMode = "vega";
+              getJSONSpec("default-multivariable-spec", embedChart);
+            }
           }
 
-        }
+          function embedChart(jsonSpec) { 
+            if (chartType == "overview-detail") {
+              var sfrom = moment(from).format("MMM d YYYY");
+              var suntil = moment(until).format("MMM d YYYY");
 
-        function embedChart(jsonSpec) { 
-          if (chartType == "overview-detail") {
-            var sfrom = moment(from).format("MMM d YYYY");
-            var suntil = moment(until).format("MMM d YYYY");
+              jsonSpec.data[0].values = measurements;
+              var prop1 = props[0];
+              jsonSpec.data[0].format.parse[prop1] = jsonSpec.data[0].format.parse["measurement"];
+              delete jsonSpec.data[0].format.parse["measurement"];
 
-            jsonSpec.data[0].values = measurements;
-            var prop1 = props[0];
-            jsonSpec.data[0].format.parse[prop1] = jsonSpec.data[0].format.parse["measurement"];
-            delete jsonSpec.data[0].format.parse["measurement"];
+              jsonSpec.scales[1].domain.field = props[0];
+              jsonSpec.scales[3].domain.field = props[0];
+              jsonSpec.marks[0].marks[0].marks[0].properties.update.y.field = props[0];
+              jsonSpec.marks[1].marks[0].properties.update.y.field = props[0];
 
-            jsonSpec.scales[1].domain.field = props[0];
-            jsonSpec.scales[3].domain.field = props[0];
-            jsonSpec.marks[0].marks[0].marks[0].properties.update.y.field = props[0];
-            jsonSpec.marks[1].marks[0].properties.update.y.field = props[0];
+              jsonSpec.signals[1].init.expr = "datetime('" + sfrom + "')";
+              jsonSpec.signals[2].init.expr = "datetime('" + sfrom + "')";
+              jsonSpec.signals[2].expr = "time(brush_start) === time(brush_end) ? datetime('" + sfrom + "') : min(brush_start, brush_end)";
+              jsonSpec.signals[3].init.expr = "datetime('" + suntil + "')";
+              jsonSpec.signals[3].expr = "time(brush_start) === time(brush_end) ? datetime('" + suntil + "') : max(brush_start, brush_end)";
 
-            jsonSpec.signals[1].init.expr = "datetime('" + sfrom + "')";
-            jsonSpec.signals[2].init.expr = "datetime('" + sfrom + "')";
-            jsonSpec.signals[2].expr = "time(brush_start) === time(brush_end) ? datetime('" + sfrom + "') : min(brush_start, brush_end)";
-            jsonSpec.signals[3].init.expr = "datetime('" + suntil + "')";
-            jsonSpec.signals[3].expr = "time(brush_start) === time(brush_end) ? datetime('" + suntil + "') : max(brush_start, brush_end)";
-
-            jsonSpec.marks[0].marks[0].marks[0].properties.update.fill.value = "#" + color;
-          } else if (chartType == "multivariable") {
-            jsonSpec.data[0].values = measurements;
+              jsonSpec.marks[0].marks[0].marks[0].properties.update.fill.value = "#" + color;
+            } else if (chartType == "multivariable") {
+              jsonSpec.data[0].values = measurements;
             
-            // Modification of values parsing
-            var parse = new Object();
-            for (var i = 0; i < props.length; i++) {
-              var propertyName = props[i];
-              parse[propertyName] = "number";
-            }
-            parse["Time"] = "date";
-            jsonSpec.data[0].format["parse"] = parse;
-            //delete jsonSpec.data[0].format["parse"];
+              // Modification of values parsing
+              var parse = new Object();
+              for (var i = 0; i < props.length; i++) {
+                var propertyName = props[i];
+                parse[propertyName] = "number";
+              }
+              parse["Time"] = "date";
+              jsonSpec.data[0].format["parse"] = parse;
 
-            // Creation of scales, one for each variable/property
-            for (var i = 0; i < props.length; i++) {
-              var propertyName = props[i];
-              var yscale = new Object();
-              var scaleName = "y" + (i + 1);
-              yscale["name"] = scaleName;
-              yscale["type"] = "linear";
-              yscale["range"] = "height";
-              yscale["nice"] = true;
+              // Creation of scales, one for each variable/property
+              for (var i = 0; i < props.length; i++) {
+                var propertyName = props[i];
+                var yscale = new Object();
+                var scaleName = "y" + (i + 1);
+                yscale["name"] = scaleName;
+                yscale["type"] = "linear";
+                yscale["range"] = "height";
+                yscale["nice"] = true;
               
-              var domain = new Object();
-              domain["data"] = "measurements";
-              domain["field"] = propertyName;
-              yscale["domain"] = domain;
+                var domain = new Object();
+                domain["data"] = "measurements";
+                domain["field"] = propertyName;
+                yscale["domain"] = domain;
 
-              jsonSpec.scales.push(yscale);
-            }
+                jsonSpec.scales.push(yscale);
+              }
              
-            // Creation of axes, one for each scale          
-            for (var i = 0; i < props.length; i++) {
-              var propertyName = props[i];
-              var yaxe = new Object();
-              yaxe["type"] = "y";
-              yaxe["scale"] = "y" + (i + 1);
-              //yaxe["title"] = // Title should come from uom field in data
-              yaxe["title"] = propertyName;
-              if (i > 0) {
-                yaxe["orient"] = "right";
-              }
-              if (i > 1) {
-                yaxe["offset"] = 50;
+              // Creation of axes, one for each scale          
+              for (var i = 0; i < props.length; i++) {
+                var propertyName = props[i];
+                var yaxe = new Object();
+                yaxe["type"] = "y";
+                yaxe["scale"] = "y" + (i + 1);
+                //yaxe["title"] = // Title should come from uom field in data
+                yaxe["title"] = propertyName + "(" + uoms[propertyName] + ")";
+                if (i > 0) { yaxe["orient"] = "right"; } 
+                if (i > 1) { yaxe["offset"] = 50; }
+
+                jsonSpec.axes.push(yaxe);
               }
 
-              jsonSpec.axes.push(yaxe);
-            }
-
-            // Definition of enter properties for the marks of the chart
-            for (var i = 0; i < props.length; i++) {
-              var propertyName = props[i];
-              var enterProperty = new Object();
-              var scaleId = "y" + (i + 1); 
+              // Definition of enter properties for the marks of the chart
+              for (var i = 0; i < props.length; i++) {
+                var propertyName = props[i];
+                var enterProperty = new Object();
+                var scaleId = "y" + (i + 1); 
  
-              enterProperty["scale"] = scaleId;
-              enterProperty["field"] = propertyName;
+                enterProperty["scale"] = scaleId;
+                enterProperty["field"] = propertyName;
               
-              if (i > 0) {
-                jsonSpec.marks[0].marks[0].properties.enter[scaleId] = enterProperty;
-                jsonSpec.marks[0].marks[1].properties.enter[scaleId] = enterProperty;
-              } else {
-                jsonSpec.marks[0].marks[0].properties.enter["y"] = enterProperty;
-                jsonSpec.marks[0].marks[1].properties.enter["y"] = enterProperty;
+                if (i > 0) {
+                  jsonSpec.marks[0].marks[0].properties.enter[scaleId] = enterProperty;
+                  jsonSpec.marks[0].marks[1].properties.enter[scaleId] = enterProperty;
+                } else {
+                  jsonSpec.marks[0].marks[0].properties.enter["y"] = enterProperty;
+                  jsonSpec.marks[0].marks[1].properties.enter["y"] = enterProperty;
+                }
               }
+            } else if (chartType == "punch-card") {
+              var propertyName = props[0]
+              jsonSpec.data.values = measurements;
+              jsonSpec.encoding.size.field = propertyName;
+              jsonSpec.encoding.size.aggregate = aggregate;
+              jsonSpec.encoding.size.title = aggregate + " - " + propertyName + "(" + uoms[propertyName] + ")";
+              jsonSpec.encoding.color.value = "#" + color;
+            } else {
+              var propertyName = props[0]
+              jsonSpec.data.values = measurements;
+              jsonSpec.encoding.y.field = propertyName;
+              jsonSpec.encoding.y.title = propertyName + "(" + uoms[propertyName] + ")";
+              jsonSpec.encoding.color.value = "#" + color;
             }
-          } else if (chartType == "punch-card") {
-            jsonSpec.data.values = measurements;
-            jsonSpec.encoding.size.field = props[0];
-            jsonSpec.encoding.color.value = "#" + color;
-          } else {
-            jsonSpec.data.values = measurements;
-            jsonSpec.encoding.y.field = props[0];
-            jsonSpec.encoding.color.value = "#" + color;
-          }
           
-          var embedSpec = { mode: vegaMode, spec: jsonSpec };
-          vg.embed("#" + divId, embedSpec, function(error, result) { });
+            var embedSpec = { mode: vegaMode, spec: jsonSpec };
+            vg.embed("#" + divId, embedSpec, function(error, result) { });
+          }
         }
       };
 

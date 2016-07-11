@@ -26,28 +26,34 @@ function getObservations(serverName, serviceName, offeringName, procedureName, p
     props.push(property);
   }
 
-  var year = moment(from).year();
-  var month = moment(from).month() + 1; // Momentjs returns month number starting from 0
-  var day = moment(from).date();
-  var hour = moment(from).hour();
-  var min = moment(from).minute();
-  var sec = moment(from).second();
-  var offset = 0;
-  var begin = new istsos.Date(year, month, day, hour, min, sec, offset, "");
+  var fromYear = moment(from).year();
+  var fromMonth = moment(from).month() + 1; // Momentjs returns month number starting from 0
+  var fromDay = moment(from).date();
+  var fromHour = moment(from).hour();
+  var fromMin = moment(from).minute();
+  var fromSec = moment(from).second();
+  var fromOffset = 0;
+  if (from.includes("+")) {
+    fromOffset = parseInt(from.substr(from.indexOf("+") + 1, 2));
+  }
+  var begin = new istsos.Date(fromYear, fromMonth, fromDay, fromHour, fromMin, fromSec, fromOffset, "");
 
-  var year = moment(until).year();
-  var month = moment(until).month() + 1;
-  var day = moment(until).date();
-  var hour = moment(until).hour();
-  var min = moment(until).minute();
-  var sec = moment(until).second();
-  var offset = 0;
-  var end = new istsos.Date(year, month, day, hour, min, sec, offset, "");
-
+  var untilYear = moment(until).year();
+  var untilMonth = moment(until).month() + 1;
+  var untilDay = moment(until).date();
+  var untilHour = moment(until).hour();
+  var untilMin = moment(until).minute();
+  var untilSec = moment(until).second();
+  var untilOffset = 0;
+  if (until.includes("+")) {
+    untilOffset = parseInt(until.substr(until.indexOf("+") + 1, 2));
+  }
+  var end = new istsos.Date(untilYear, untilMonth, untilDay, untilHour, untilMin, untilSec, untilOffset, "");
 
   service.getObservations(offering, procedure, props, begin, end);
   istsos.on(istsos.events.EventType.GETOBSERVATIONS, function(ev) {
     var measurements = [];
+    var uoms = new Object();
     var values = ev.getData()[0].result.DataArray.values;
     var fields = ev.getData()[0].result.DataArray.field;
     
@@ -58,14 +64,23 @@ function getObservations(serverName, serviceName, offeringName, procedureName, p
           var propertyName = propsNames[j];
           var measurement = new Object();
           for (var k = 0; k < values[i].length; k++) {
-            var fieldName = fields[k].name; // Take property name from Fields array
-            var value = values[i][k]; // Value obtained from array retrieved by getObservations
+            // Take property name from Fields array
+            var fieldName = fields[k].name;
+            // Value obtained from array retrieved by getObservations
+            var value = values[i][k]; 
 
             if (fieldName === "Time") { 
               measurement[fieldName] = value;   
             } else if (fieldName.includes(propertyName) && !fieldName.includes(":")) {
+              // Inserts measurement value 
               measurement[propertyName] = parseFloat(value); 
-              measurement["uom"] = fields[k].uom; // Adds Unit of Measurement. This attribute will be the name of the Y axe
+              // Obtains Unit of Measurement
+              var uom = fields[k].uom;
+              // Add Unit of Measurement. This attribute will be the included in the axes titles
+              //measurement["uom"] = uom;
+              if (!uoms.hasOwnProperty(propertyName)){ 
+                uoms[propertyName] = uom; 
+              }
             } else if (fieldName.includes(propertyName)) {
               measurement[fieldName] = value;   
             }
@@ -76,6 +91,6 @@ function getObservations(serverName, serviceName, offeringName, procedureName, p
       }
     }
 
-    callback(measurements);
+    callback(measurements, uoms);
   });
 }
