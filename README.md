@@ -60,4 +60,4 @@ VistSOS support the following list of configuration options:
   * <b>rowTimeUnit:</b> The time unit (year, month, date, hours, etc) or combination of time units applied to each row of a trellis chart. Each row is represented as a separate plot visualizing a different subset of the datset, e.g, each row represents a year.
   * <b>xTimeUnit:</b> The time unit (year, month, date, hours, etc) or combination of time units applied to the X axis of a trellis chart.
   * <b>yTimeUnit:</b> The time unit (year, month, date, hours, etc) or combination of time units applied to the Y axis of a trellis chart.
-  * <b>bin:</b> If this parameter is equal to the string "true", the trellis chart will create a number bins aggregating the data by measurement. To use a different aggregation, set this parameter to "false" and specify a supported aggregation operation with the parameter aggregate.
+  * <b>bin:</b> If this parameter is equal to the string "true", the trellis chart will create a number of bins aggregating the data by measurement. To use a different aggregation, set this parameter to "false" and specify a supported aggregation operation with the parameter aggregate.
