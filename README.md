@@ -13,7 +13,7 @@ To use VistSOS modify your HTML document like this:
   <link rel="import" href="default-widget.html" async>
   ```
 
-2. Inside the body of the application include a declaration of a chart with some parameters, e.g.
+2. Inside the body of the HTML document include a declaration of a chart with some parameters, e.g.
   ```html
   <div id="f2a24b67">
     <istsos-chart type="multivariable"
