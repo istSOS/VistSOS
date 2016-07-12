@@ -39,7 +39,7 @@ The property 'type' can take one of the following values:
   * scatterplot
   * overview-detail
   * multivariable
-  * trellis 
+  * trellis (https://en.wikipedia.org/wiki/Small_multiple) 
 
 VistSOS support the following list of configuration options:
 
