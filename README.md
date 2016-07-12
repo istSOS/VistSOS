@@ -49,8 +49,8 @@ VistSOS support the following list of configuration options:
   * <b>property:</b>  A list of observed properties to visualize.
   * <b>from:</b>  initial date time.
   * <b>until:</b>  final date time.
-  * <b>color:</b>  Color of the mark (line, bar, circle, etc) used to visualize the data. Not applicable to multivariate charts.
-  * <b>color2:</b>  Second color of the mark. So far, Applicable only for overview-detail charts.
+  * <b>color:</b>  Color of the mark (line, bar, circle, etc) used to visualize the data, e.g, 00A800. Not applicable to multivariate charts.
+  * <b>color2:</b>  Second color of the mark, e.g, 00A800. So far, Applicable only for overview-detail charts.
   * <b>strokeWidth:</b>  Line thickness. So far, Applicable to line and multivariate charts.
   * <b>aggregate:</b>  An aggregation operation applied on the data, e.g. count, average, stdev, sum, variance. Currently supported by punch-card charts. For more information check vega aggregate documentation: https://vega.github.io/vega-lite/docs/aggregate.html.
   * <b>timeUnit:</b>  A time unit or combination of time units to apply to the chart, e.g. date, year, month, hours, minutes, monthdate, monthday, monthdatehour, etc. For more information check vega time unit documentation: https://vega.github.io/vega-lite/docs/timeunit.html.

@@ -5,7 +5,7 @@
 </head>
 <body>
   <div id='f2a24b67'>
-    <istsos-chart type='line'
+    <istsos-chart type='trellis'
      server="http://131.175.143.71/istsos"
      service="test"
      offering='offering1'
@@ -13,13 +13,7 @@
      property='temperature'
      from='2015-01-01T13:46'
      until='2015-06-30T23:46'
-     color='FF0000'
-     color2='FF0000'
-     strokeWidth='1'
-     aggregate="stdev"
-     timeUnit="month-date"
-     timeUnit2="hours",
-     timeFormat="%m-%d",
+     bin="true"
      divId='f2a24b67'>
     </istsos-chart>
   </div>

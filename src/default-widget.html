@@ -70,6 +70,11 @@
           var timeUnit2 = this.getAttribute("timeUnit2") || "hours";
           // Time format to apply when multivariable chart is selected
           var timeFormat = this.getAttribute("timeFormat") || "";
+          // The next set of parameters are applied only to trellis charts
+          var rowTimeUnit = this.getAttribute("rowTimeUnit") || "year";
+          var xTimeUnit = this.getAttribute("xTimeUnit") || "month";
+          var yTimeUnit = this.getAttribute("yTimeUnit") || "hours";
+          var bin = this.getAttribute("bin") == "true" ? true : false;
 
           var divId = this.getAttribute("divId");
 
@@ -89,6 +94,8 @@
               getJSONSpec("default-punch-card-spec", embedChart);
             } else if (chartType == "scatterplot") {
               getJSONSpec("default-scatterplot-spec", embedChart);
+            } else if (chartType == "trellis") {
+              getJSONSpec("default-trellis-spec", embedChart);
             } else if (chartType == "overview-detail") {
               vegaMode = "vega";
               getJSONSpec("default-overview-detail-spec", embedChart);
@@ -188,7 +195,7 @@
                 jsonSpec.marks[0].marks[0].properties.enter.strokeWidth.value = strokeWidth;
               }
             } else if (chartType == "punch-card") {
-              var propertyName = props[0]
+              var propertyName = props[0];
               jsonSpec.data.values = measurements;
               jsonSpec.encoding.size.field = propertyName;
               jsonSpec.encoding.size.aggregate = aggregate;
@@ -196,8 +203,23 @@
               jsonSpec.encoding.color.value = "#" + color;
               jsonSpec.encoding.y.timeUnit = timeUnit;
               jsonSpec.encoding.x.timeUnit = timeUnit2;
+            } else if (chartType == "trellis") {
+              var propertyName = props[0];
+              jsonSpec.data.values = measurements;
+              jsonSpec.encoding.row.timeUnit = rowTimeUnit;
+              jsonSpec.encoding.x.timeUnit = xTimeUnit;
+              jsonSpec.encoding.y.timeUnit = yTimeUnit;
+              jsonSpec.encoding.color.field = propertyName;
+              jsonSpec.encoding.color.bin = bin;
+            
+              if (!bin) {
+                jsonSpec.encoding.color["aggregate"] = aggregate;
+                jsonSpec.encoding.color.title = aggregate + " - " + propertyName + "(" + uoms[propertyName] + ")";
+              } else {
+                jsonSpec.encoding.color.title = propertyName + "(" + uoms[propertyName] + ")";
+              } 
             } else {
-              var propertyName = props[0]
+              var propertyName = props[0];
               jsonSpec.data.values = measurements;
               jsonSpec.encoding.x.timeUnit = timeUnit;
               jsonSpec.encoding.y.field = propertyName;

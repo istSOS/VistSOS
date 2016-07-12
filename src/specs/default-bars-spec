@@ -1,7 +1,7 @@
 {
   "description": "Change this",
   "data": { 
-    "url" : "[]"
+    "values" : "[]"
   },
   "mark": "bar",
   "encoding": {
@@ -9,13 +9,19 @@
       "timeUnit": "monthdate", 
       "field": "Time", 
       "type": "temporal", 
-      "axis": {"shortTimeLabels": true, "offset": 2, "tickColor": "#00A800"}
+      "axis": {
+        "shortTimeLabels": true, 
+        "offset": 2, "tickColor": 
+        "#00A800"
+      }
     },
     "y": {
       "field": "measurement", 
       "aggregate": "sum", 
       "type": "quantitative", 
-      "axis": {"tickColor": "#00A800"}, 
+      "axis": {
+        "tickColor": "#00A800"
+      }, 
       "scale": {"bandSize": 17}
     },
     "color": {"value": "#00A800"}
