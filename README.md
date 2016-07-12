@@ -29,6 +29,8 @@ To use VistSOS modify your HTML document like this:
     </istsos-chart>
   </div>
   ```
+Note the id of the div and the parameter 'divId' of the istsos-chart element should match.
+
 The property 'type' can take one of the following values: 
 
   * line
@@ -37,8 +39,6 @@ The property 'type' can take one of the following values:
   * scatterplot
   * overview-detail
   * multivariable 
-
-Note the id of the div and the parameter 'divId' of the istsos-chart element should match.
 
 VistSOS support the following list of configuration options:
 
