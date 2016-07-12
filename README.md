@@ -38,7 +38,8 @@ The property 'type' can take one of the following values:
   * punch-card
   * scatterplot
   * overview-detail
-  * multivariable 
+  * multivariable
+  * trellis 
 
 VistSOS support the following list of configuration options:
 
@@ -52,8 +53,11 @@ VistSOS support the following list of configuration options:
   * <b>color:</b>  Color of the mark (line, bar, circle, etc) used to visualize the data, e.g, 00A800. Not applicable to multivariate charts.
   * <b>color2:</b>  Second color of the mark, e.g, 00A800. So far, Applicable only for overview-detail charts.
   * <b>strokeWidth:</b>  Line thickness. So far, Applicable to line and multivariate charts.
-  * <b>aggregate:</b>  An aggregation operation applied on the data, e.g. count, average, stdev, sum, variance. Currently supported by punch-card charts. For more information check vega aggregate documentation: https://vega.github.io/vega-lite/docs/aggregate.html.
+  * <b>aggregate:</b>  An aggregation operation applied on the data, e.g. count, average, stdev, sum, variance. Currently supported by punch-card and trellis charts. For more information check vega aggregate documentation: https://vega.github.io/vega-lite/docs/aggregate.html.
   * <b>timeUnit:</b>  A time unit or combination of time units to apply to the chart, e.g. date, year, month, hours, minutes, monthdate, monthday, monthdatehour, etc. For more information check vega time unit documentation: https://vega.github.io/vega-lite/docs/timeunit.html.
   * <b>timeUnit2</b> : Same as timeUnit but applied to the second axis. Currently only applicable to punch-card charts.
   * <b>timeFormat:</b>  A date time format string, e.g. %y/%m/%d (2 digits year, month number, day of the month). For a detailed list of time format options check d3.js documentation: https://github.com/d3/d3-time-format/blob/master/README.md#locale_format
-
+  * <b>rowTimeUnit:</b> The time unit (year, month, date, hours, etc) or combination of time units applied to each row of a trellis chart. Each row is represented as a separate plot visualizing a different subset of the datset, e.g, each row represents a year.
+  * <b>xTimeUnit:</b> The time unit (year, month, date, hours, etc) or combination of time units applied to the X axis of a trellis chart.
+  * <b>yTimeUnit:</b> The time unit (year, month, date, hours, etc) or combination of time units applied to the Y axis of a trellis chart.
+  * <b>bin:</b> If this parameter is equal to the string "true", the trellis chart will create a number bins aggregating the data by measurement. To use a different aggregation, set this parameter to "false" and specify a supported aggregation operation with the parameter aggregate.
