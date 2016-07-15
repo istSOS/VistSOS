@@ -1,9 +1,21 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <script src="../bower_components/webcomponentsjs-0.7.12/webcomponents.min.js"></script>
   <link rel="import" href="default-widget.html" async>  
 </head>
 <body>
+  <script>
+    console.log("hi");
+    
+    window.addEventListener('HTMLImportsLoaded', function(e) { 
+      console.log('Imports are ready');
+    });
+
+    window.addEventListener('WebComponentsReady', function(e) { 
+      console.log('Components are ready');
+    });
+  </script>
   <div id='f2a24b67'>
     <istsos-chart type='line'
      server="http://131.175.143.71/istsos"
@@ -14,12 +26,7 @@
      from='2015-01-01T13:46'
      until='2015-06-30T23:46'
      color='FF0000'
-     color2='FF0000'
-     strokeWidth='1'
-     aggregate="stdev"
-     timeUnit="month-date"
-     timeUnit2="hours",
-     timeFormat="%m-%d",
+     timeUnit='monthdate'
      divId='f2a24b67'>
     </istsos-chart>
   </div>

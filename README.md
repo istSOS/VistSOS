@@ -10,6 +10,7 @@ To use VistSOS modify your HTML document like this:
 
 1. Inside the head section include:
   ```html
+  <script src="../bower_components/webcomponentsjs/webcomponents.min.js"></script>
   <link rel="import" href="default-widget.html" async>
   ```
 
@@ -61,3 +62,5 @@ VistSOS support the following list of configuration options:
   * <b>xTimeUnit:</b> The time unit (year, month, date, hours, etc) or combination of time units applied to the X axis of a trellis chart.
   * <b>yTimeUnit:</b> The time unit (year, month, date, hours, etc) or combination of time units applied to the Y axis of a trellis chart.
   * <b>bin:</b> If this parameter is equal to the string "true", the trellis chart will create a number of bins aggregating the data by measurement. To use a different aggregation, set this parameter to "false" and specify a supported aggregation operation with the parameter aggregate.
+
+NOTE FOR FIREFOX: If the charts are not visible, got to the url 'about:config' and search for 'dom.webcomponents.enabled', then set the value of this characteristic to false.
