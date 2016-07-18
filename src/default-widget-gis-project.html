@@ -23,26 +23,23 @@
     </style>
   </head>
   <body>
+    <div id="VistSOS"></div>
     <script>
       $.ajaxSetup({ async: true });
 
-      // Define and register HTML element <istsos-chart>
-      var proto = Object.create(HTMLElement.prototype);
-       
-      proto.createdCallback = function() {
         var jsonSpec = {};
         var measurements = [];
         var uoms = new Object();
         var vegaMode = "vega-lite";
 
         // Mandatory parameters
-        var server = this.getAttribute("server");
-        var service = this.getAttribute("service");
-        var offering = this.getAttribute("offering");
-        var procedure = this.getAttribute("procedure");
+        var server = "http://131.175.143.71/istsos";
+        var service = "test";
+        var offering = "offering1";
+        var procedure = getURLParameter("proc");
         var props = null;
         try {
-          props = this.getAttribute("property").toLowerCase().split(",");
+          props = getURLParameter("prop").toLowerCase().split(",");
           if (props.join("|").includes(" ") || props.indexOf("") > -1) { 
             props = null;
             throw new Error("Empty strings or spaces are not allowed as observed property values."); 
@@ -50,33 +47,33 @@
         } catch(e) {
           console.log(e);
         }
-        var from = this.getAttribute("from");
-        var until = this.getAttribute("until");
+        var from = getURLParameter("fr");
+        var until = getURLParameter("un");
 
         // If mandatory parameters are not present, don't execute chart generation
         if (server == null || service == null || offering == null || procedure == null || props == null || from == null || until == null) {
           console.log("Please specify all the mandatory parameters.")
         } else {
           // Setting not  mandatory parameters with default values
-          var chartType = this.getAttribute("type") || "line";
-          var color = this.getAttribute("color") || "00A800";
-          var color2 = this.getAttribute("color2") || "00A800";
-          var strokeWidth = parseInt(this.getAttribute("strokeWidth")) || 1;
+          var chartType = getURLParameter("chartType") || "line";
+          var color = getURLParameter("col1") || "00A800";
+          var color2 = getURLParameter("col2") || "00A800";
+          var strokeWidth = parseInt(getURLParameter("strokeWidth")) || 1;
           // Aggregate function applied when punch-card chart is selected
-          var aggregate = this.getAttribute("aggregate") || "average";
+          var aggregate = getURLParameter("aggregate") || "average";
           // Time unit parameter applied when line, bar, punch-card or scatterplot chart is selected
-          var timeUnit = this.getAttribute("timeUnit") || "month";
+          var timeUnit = getURLParameter("tu1") || "month";
           // Second time unit parameter. Only applied when punch-card chart is selected
-          var timeUnit2 = this.getAttribute("timeUnit2") || "hours";
+          var timeUnit2 = getURLParameter("tu2") || "hours";
           // Time format to apply when multivariable chart is selected
-          var timeFormat = this.getAttribute("timeFormat") || "";
+          var timeFormat = getURLParameter("timeFormat") || "";
           // The next set of parameters are applied only to trellis charts
-          var rowTimeUnit = this.getAttribute("rowTimeUnit") || "year";
-          var xTimeUnit = this.getAttribute("xTimeUnit") || "month";
-          var yTimeUnit = this.getAttribute("yTimeUnit") || "hours";
-          var bin = this.getAttribute("bin") == "true" ? true : false;
+          var rowTimeUnit = getURLParameter("rowTimeUnit") || "year";
+          var xTimeUnit = getURLParameter("xTimeUnit") || "month";
+          var yTimeUnit = getURLParameter("yTimeUnit") || "hours";
+          var bin = getURLParameter("bin") == "true" ? true : false;
 
-          var divId = this.getAttribute("divId");
+          var divId = "VistSOS";
 
           if (moment.utc(from).isValid() && moment.utc(until).isValid()) {
             getObservations(server, service, offering, procedure, props, from, until, loadSpec); // from data-provider.js 
@@ -231,9 +228,7 @@
             vg.embed("#" + divId, embedSpec, function(error, result) { });
           }
         }
-      };
 
-      document.registerElement("istsos-chart", {prototype: proto});
     </script>
   </body>
 </html>
