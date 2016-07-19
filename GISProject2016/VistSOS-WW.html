@@ -164,7 +164,8 @@
             console.log(chartUrl);
             var iframe = "<iframe name='istSOS-chart' src='" + chartUrl + "' width='900' height='600' scrolling='no' frameborder='0'></iframe>";
 
-            $("#embedded").html(iframe);            
+            $("#embedded").dialog( { width:800, height:600 } );
+            $("#embedded").html(iframe);
           }
         }
       });
