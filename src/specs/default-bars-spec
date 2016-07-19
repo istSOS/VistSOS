@@ -17,7 +17,6 @@
     },
     "y": {
       "field": "measurement", 
-      "aggregate": "sum", 
       "type": "quantitative", 
       "axis": {
         "tickColor": "#00A800"

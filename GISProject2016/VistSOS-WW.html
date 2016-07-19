@@ -6,16 +6,15 @@
     <!--required by Web World Wind. See SimplestExample.html for an example of using Web World Wind without them.-->
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" type="text/css"  href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
-    <link rel="stylesheet" type="text/css" href="//code.jquery.com/ui/1.11.1/themes/smoothness/jquery-ui.css">
+    <link rel="stylesheet" type="text/css" href="//code.jquery.com/ui/1.12.0/themes/smoothness/jquery-ui.css">
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.4/jquery.datetimepicker.css" />
     <script src="http://worldwindserver.net/webworldwind/worldwindlib.js" type="text/javascript"></script>
-    <script src="http://code.jquery.com/jquery-1.11.1.min.js" type="text/javascript"></script>
-    <script src="http://code.jquery.com/ui/1.11.1/jquery-ui.min.js" type="text/javascript"></script>
+    <script src="http://code.jquery.com/jquery-1.12.4.min.js" type="text/javascript"></script>
+    <script src="http://code.jquery.com/ui/1.12.0/jquery-ui.min.js" type="text/javascript"></script>
     <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.13.0/moment.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.4/build/jquery.datetimepicker.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jscolor/2.0.4/jscolor.js"></script>
-    <script src="../bower_components/webcomponentsjs/webcomponents.min.js"></script>
     <script data-main="VistSOS-WW" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.17/require.min.js"></script>
 
     <style>
@@ -118,6 +117,10 @@
 </div>
 <script type="text/javascript">
 
+    $("#timeUnit1").val("monthdate");
+    $("#datetimepicker-from").val("2015/01/01 00:00");
+    $("#datetimepicker-to").val("2015/07/01 00:00");
+
     $("#datetimepicker-from").datetimepicker({
         maxDate: 0,
         onShow:function(ct) {
@@ -162,9 +165,9 @@
                            + "&tu2=" + timeUnit2;
  
             console.log(chartUrl);
-            var iframe = "<iframe name='istSOS-chart' src='" + chartUrl + "' width='900' height='600' scrolling='no' frameborder='0'></iframe>";
+            var iframe = "<iframe name='istSOS-chart' src='" + chartUrl + "' width='100%' height='100%' scrolling='yes' frameborder='0'></iframe>";
 
-            $("#embedded").dialog( { width:800, height:600 } );
+            $("#embedded").dialog( { width: 800, height: 600} );
             $("#embedded").html(iframe);
           }
         }
