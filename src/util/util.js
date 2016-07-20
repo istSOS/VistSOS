@@ -10,7 +10,7 @@ function genRandId() {
 
 // Returns a vega/vegga-lite JSON specification from specs folder
 function getJSONSpec(specName, callback) {
-  var specPath = "specs/" + specName;
+  var specPath = "../src/specs/" + specName;
   var spec = {};
   $.getJSON(specPath, function(response) {
     callback(response);
