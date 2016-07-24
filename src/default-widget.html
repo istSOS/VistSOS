@@ -42,10 +42,10 @@
         var procedure = this.getAttribute("procedure");
         var props = null;
         try {
-          props = this.getAttribute("property").toLowerCase().split(",");
-          if (props.join("|").includes(" ") || props.indexOf("") > -1) { 
+          props = this.getAttribute("property").toLowerCase().replace(/ /g, "").split(",");
+          if (props.indexOf("") > -1) { 
             props = null;
-            throw new Error("Empty strings or spaces are not allowed as observed property values."); 
+            throw new Error("Empty strings are not allowed as observed property values."); 
           }
         } catch(e) {
           console.log(e);
