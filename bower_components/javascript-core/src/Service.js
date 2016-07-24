@@ -35,13 +35,13 @@ istsos.Service.prototype = {
      * @param {istsos.events.EventType} eventType
      * @param {String} method
      * @param {JSON} opt_data
-     * @param {function} opt_callback
+     * @param {function} opt_otherData
      */
-    executeRequest: function (url, eventType, method, opt_data, opt_callback) {
+    executeRequest: function (url, eventType, method, opt_data, opt_otherData) {
         goog.net.XhrIo.send(url, function (e) {
             var obj = e.target.getResponseJson();
             console.log(obj);
-            istsos.fire(eventType, e.target);
+            istsos.fire(eventType, e.target, opt_otherData);
         }, method, opt_data);
     },
     /**
@@ -300,27 +300,32 @@ istsos.Service.prototype = {
     /**
      * @fires istsos.Service#istsos.events.EventType: GETOBSERVATIONS
      * @param {istsos.Offering} offering
-     * @param {istsos.Procedure|istsos.VirtualProcedure} procedure
+     * @param {Array<istsos.Procedure|istsos.VirtualProcedure>} procedures
      * @param {Array<istsos.ObservedProperty>} observed_properties
      * @param {istsos.Date} begin_time
      * @param {istsos.Date} end_time
      */
-    getObservations: function (offering, procedure, observed_properties, begin_time, end_time) {
-        var proc_name;
-        if (procedure.systemType === "virtual") {
-            proc_name = procedure.getVirtualProcedureJSON()["system"];
-        } else if (procedure.systemType === "insitu-fixed-point" || procedure.systemType === "insitu-mobile-point") {
-            proc_name = procedure.getProcedureJSON()["system"]
-        } else {
-            console.log("WRONG TYPE");
+    getObservations: function (offering, procedures, observed_properties, begin_time, end_time) {
+        var proc_names = [];
+        for(var p = 0; p < procedures.length; p++) {
+            if (procedures[p].systemType === "virtual") {
+                proc_names.push(procedures[p].getVirtualProcedureJSON()["system"]);
+            } else if (procedures[p].systemType === "insitu-fixed-point" || procedures[p].systemType === "insitu-mobile-point") {
+                proc_names.push(procedures[p].getProcedureJSON()["system"]);
+            } else {
+                console.log(procedures[p] + ": WRONG TYPE!" );
+            }
         }
+
         var urns = [];
         for (var i = 0; i < observed_properties.length; i++) {
             urns.push(observed_properties[i].getObservedPropertyJSON()["definition"]);
         }
+        var begin = (begin_time instanceof istsos.Date) ? begin_time.getDateString() : begin_time;
+        var end = (end_time instanceof istsos.Date) ? end_time.getDateString() : end_time;
         var url = this.server.getUrl() + "wa/istsos/services/" + this.serviceName + "/operations/getobservation/offerings/" +
-            offering.getOfferingJSON()["name"] + "/procedures/" + proc_name + "/observedproperties/" + urns.toString() +
-            "/eventtime/" + begin_time.getDateString() + "/" + end_time.getDateString();
+            offering.getOfferingJSON()["name"] + "/procedures/" + proc_names.toString() + "/observedproperties/" + urns.toString() +
+            "/eventtime/" + begin + "/" + end;
         console.log(url);
         this.executeRequest(url, istsos.events.EventType.GETOBSERVATIONS, "GET");
     },
@@ -341,12 +346,32 @@ istsos.Service.prototype = {
         } else {
             console.log("WRONG TYPE");
         }
+        var begin = (begin_time instanceof istsos.Date) ? begin_time.getDateString() : begin_time;
+        var end = (end_time instanceof istsos.Date) ? end_time.getDateString() : end_time;
         var url = this.server.getUrl() + "wa/istsos/services/" + this.serviceName + "/operations/getobservation/offerings/" +
             offering.getOfferingJSON()["name"] + "/procedures/" + proc_name + "/observedproperties/" +
-            observed_property.getObservedPropertyJSON()["definition"] + "/eventtime/" + begin_time.getDateString() +
-            "/" + end_time.getDateString();
+            observed_property.getObservedPropertyJSON()["definition"] + "/eventtime/" + begin +
+            "/" + end;
         console.log(url);
         this.executeRequest(url, istsos.events.EventType.GETOBSERVATIONS_BY_PROPERTY, "GET");
+    },
+    //lessThan, lessThanAndEqual, equal, greaterThanAndEqual, greatherThan, between
+    getObservationsByQualityIndexConstraint: function (offering, procedure, observed_property, begin_time, end_time, constraintType, qualityIndexNumber) {
+        var proc_name;
+        if (procedure.systemType === "virtual") {
+            proc_name = procedure.getVirtualProcedureJSON()["system"];
+        } else if (procedure.systemType === "insitu-fixed-point" || procedure.systemType === "insitu-mobile-point") {
+            proc_name = procedure.getProcedureJSON()["system"]
+        } else {
+            console.log("WRONG TYPE");
+        }
+        var begin = (begin_time instanceof istsos.Date) ? begin_time.getDateString() : begin_time;
+        var end = (end_time instanceof istsos.Date) ? end_time.getDateString() : end_time;
+        var url = this.server.getUrl() + "wa/istsos/services/" + this.serviceName + "/operations/getobservation/offerings/" +
+            offering.getOfferingJSON()["name"] + "/procedures/" + proc_name + "/observedproperties/" + observed_property.getObservedPropertyJSON()["definition"] +
+            "/eventtime/" + begin + "/" + end;
+        console.log(url);
+        this.executeRequest(url, istsos.events.EventType.GETOBSERVATIONS_BY_QUALITY, "GET", null, {"QI_CONSTRAINT": "TRUE", "type": constraintType, "quality": qualityIndexNumber});
     },
     /**
      * @fires istsos.Service#istsos.events.EventType: GEOJSON
@@ -363,9 +388,9 @@ istsos.Service.prototype = {
                 if(opt_offering) {
                     url += "&offering=" + opt_offering.getOfferingJSON()["name"];
                 }
-                if(opt_procedure && opt_procedure.constructor === istsos.Procedure) {
+                if(opt_procedure && opt_procedure instanceof istsos.Procedure) {
                     url += "&procedure=" + opt_procedure.getProcedureJSON()["system"];
-                } else if (opt_procedure && opt_procedure.constructor === istsos.VirtualProcedure) {
+                } else if (opt_procedure && opt_procedure instanceof istsos.VirtualProcedure) {
                     url += "&procedure=" + opt_procedure.getVirtualProcedureJSON()["system"];
                 }
             }

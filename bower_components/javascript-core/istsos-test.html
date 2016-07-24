@@ -6,33 +6,33 @@
     <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
     <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
-    <!-- <script type="text/javascript" src="src/closure-library/closure/goog/base.js"></script>
-    <script type="text/javascript">
-        goog.require('goog.net.XhrIo');
-        goog.require('goog.dom');
-        goog.require('goog.events');
-        goog.require('goog.events.Event');
-        goog.require('goog.events.EventTarget');
-        goog.require('goog.ui.Zippy');
-    </script>
+    <script type="text/javascript" src="src/closure-library/closure/goog/base.js"></script>
 
-    <script type="text/javascript" src="src/IstSOS.js"></script>
-    <script type="text/javascript" src="src/EventHandling.js"></script>
-    <script type="text/javascript" src="src/Server.js"></script>
-    <script type="text/javascript" src="src/Service.js"></script>
-    <script type="text/javascript" src="src/Database.js"></script>
-    <script type="text/javascript" src="src/Configuration.js"></script>
-    <script type="text/javascript" src="src/Output.js"></script>
-    <script type="text/javascript" src="src/ProcedureBase.js"></script>
-    <script type="text/javascript" src="src/Procedure.js"></script>
-    <script type="text/javascript" src="src/VirtualProcedure.js"></script>
-    <script type="text/javascript" src="src/Offering.js"></script>
-    <script type="text/javascript" src="src/ObservedProperty.js"></script>
-    <script type="text/javascript" src="src/DataQuality.js"></script>
-    <script type="text/javascript" src="src/Date.js"></script>
-    <script type="text/javascript" src="src/UnitOfMeasure.js"></script>
-    <script type="text/javascript" src="src/DataQuality.js"></script> -->
-    <script type="text/javascript" src="istsos-core-compiled.js"></script>
+     <script type="text/javascript">
+         goog.require('goog.net.XhrIo');
+         goog.require('goog.dom');
+         goog.require('goog.events');
+         goog.require('goog.events.Event');
+         goog.require('goog.events.EventTarget');
+     </script>
+
+     <script type="text/javascript" src="src/IstSOS.js"></script>
+     <script type="text/javascript" src="src/EventHandling.js"></script>
+     <script type="text/javascript" src="src/Server.js"></script>
+     <script type="text/javascript" src="src/Service.js"></script>
+     <script type="text/javascript" src="src/Database.js"></script>
+     <script type="text/javascript" src="src/Configuration.js"></script>
+     <script type="text/javascript" src="src/Output.js"></script>
+     <script type="text/javascript" src="src/ProcedureBase.js"></script>
+     <script type="text/javascript" src="src/Procedure.js"></script>
+     <script type="text/javascript" src="src/VirtualProcedure.js"></script>
+     <script type="text/javascript" src="src/Offering.js"></script>
+     <script type="text/javascript" src="src/ObservedProperty.js"></script>
+     <script type="text/javascript" src="src/DataQuality.js"></script>
+     <script type="text/javascript" src="src/Date.js"></script>
+     <script type="text/javascript" src="src/UnitOfMeasure.js"></script>
+     <script type="text/javascript" src="src/DataQuality.js"></script>
+    <!-- <script type="text/javascript" src="compiled/istsos-core-2.0.js"></script> -->
 
     <script>
         /** RESPONSE JSON STYLING  */
@@ -162,6 +162,7 @@
                     <li class="list-group-item"><button class="btn btn-success" onclick="getGEOJSON()">GET FEATURE COLLECTION</button> </li>
                     <li class="list-group-item"><button class="btn btn-success" onclick="getOBSERVATIONS()">GET OBSERVATIONS</button> </li>
                     <li class="list-group-item"><button class="btn btn-success" onclick="getOBSERVATIONDATA()">GET OBSERVATIONS BY PROPERTY</button> </li>
+                    <li class="list-group-item"><button class="btn btn-success" onclick="getOBSERVATIONS_QI()">GET OBSERVATIONS BY QUALITY</button> </li>
                 </ul>
                 <li class="list-group-item" data-toggle="collapse" data-target="#offering_content"><a>OFFERING METHODS</a></li>
                 <ul id="offering_content" class="collapse list-group">

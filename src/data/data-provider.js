@@ -8,6 +8,8 @@ function getObservations(serverName, serviceName, offeringName, procedureName, p
   var service = new istsos.Service(serviceName, server);
   var offering = new istsos.Offering(offeringName, "", true, null, service);
   var procedure = new istsos.Procedure(service, procedureName, "", "", "", 4326, 0, 0, 0, [], "insitu-fixed-point", "");
+  var procedureArray = [];
+  procedureArray.push(procedure);
  
   var props = [];
   for (var i = 0; i < propsNames.length; i++) {
@@ -20,6 +22,9 @@ function getObservations(serverName, serviceName, offeringName, procedureName, p
     } else if (propsNames[i] == "temperature") {
       var name = "air-temperature"; 
       var urn = "urn:ogc:def:parameter:x-istsos:1.0:meteo:air:temperature"; 
+    } else if (propsNames[i] == "humidity") {
+      var name = "air-relative-humidity";
+      var urn = "urn:ogc:def:parameter:x-istsos:1.0:meteo:air:humidity:relative"; 
     } else {}
 
     var property = new istsos.ObservedProperty(service, name, urn, "", null, null);
@@ -33,7 +38,7 @@ function getObservations(serverName, serviceName, offeringName, procedureName, p
   var fromMin = moment(from).minute();
   var fromSec = moment(from).second();
   var fromOffset = 0;
-  if (from.includes("+")) {
+  if (from.indexOf("+") > -1) {
     fromOffset = parseInt(from.substr(from.indexOf("+") + 1, 2));
   }
   var begin = new istsos.Date(fromYear, fromMonth, fromDay, fromHour, fromMin, fromSec, fromOffset, "");
@@ -45,12 +50,12 @@ function getObservations(serverName, serviceName, offeringName, procedureName, p
   var untilMin = moment(until).minute();
   var untilSec = moment(until).second();
   var untilOffset = 0;
-  if (until.includes("+")) {
+  if (until.indexOf("+") > -1) {
     untilOffset = parseInt(until.substr(until.indexOf("+") + 1, 2));
   }
   var end = new istsos.Date(untilYear, untilMonth, untilDay, untilHour, untilMin, untilSec, untilOffset, "");
 
-  service.getObservations(offering, procedure, props, begin, end);
+  service.getObservations(offering, procedureArray, props, begin, end);
   istsos.on(istsos.events.EventType.GETOBSERVATIONS, function(ev) {
     var measurements = [];
     var uoms = new Object();
@@ -71,7 +76,7 @@ function getObservations(serverName, serviceName, offeringName, procedureName, p
 
             if (fieldName === "Time") { 
               measurement[fieldName] = value;   
-            } else if (fieldName.includes(propertyName) && !fieldName.includes(":")) {
+            } else if (fieldName.indexOf(propertyName) > -1 && !(fieldName.indexOf(":") > -1)) {
               // Inserts measurement value 
               measurement[propertyName] = parseFloat(value); 
               // Obtains Unit of Measurement
@@ -81,7 +86,7 @@ function getObservations(serverName, serviceName, offeringName, procedureName, p
               if (!uoms.hasOwnProperty(propertyName)){ 
                 uoms[propertyName] = uom; 
               }
-            } else if (fieldName.includes(propertyName)) {
+            } else if (fieldName.indexOf(propertyName) > -1) {
               measurement[fieldName] = value;   
             }
             measurement["symbol"] = propertyName;

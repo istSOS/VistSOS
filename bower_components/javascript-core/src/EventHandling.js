@@ -71,14 +71,17 @@ istsos.events.EventType = {
     PROCEDURE: 'procedureReceived',
     GEOJSON: 'geojsonReceived',
     GETOBSERVATIONS: 'getobservationsReceived',
-    GETOBSERVATIONS_BY_PROPERTY: 'getobservationsDataReceived'
+    GETOBSERVATIONS_BY_PROPERTY: 'getobservationsDataReceived',
+    GETOBSERVATIONS_BY_QUALITY: 'getObservationsByQualityIndexReceived'
 };
 /**
  * @param type
  * @param xhrIo
+ * @param opt_data
  * @constructor
  */
-istsos.events.JSONResponse = function (type, xhrIo) {
+istsos.events.JSONResponse = function (type, xhrIo, opt_data) {
+    this.optional = opt_data || null;
     this.type = type;
     goog.base(this, type);
     /**
@@ -114,19 +117,64 @@ goog.inherits(istsos.events.JSONResponse, goog.events.Event);
  * @returns {JSON|Array<JSON>}
  */
 istsos.events.JSONResponse.prototype.getData = function () {
+    var optional = this.optional;
     if(this.type === "geojsonReceived") {
         return this['json'];
     } else if (this.type === "getobservationsDataReceived") {
         var observationObj = this['json']['data'];
-        console.log(observationObj);
+
         var values = observationObj[0]["result"]["DataArray"]["values"];
-        console.log(values);
+
         var response = [];
         for (var i = 0; i < values.length; i++) {
             response.push({"date": values[i][0], "measurement": values[i][1]})
         }
-        console.log(response);
+
         return response;
+    } else if (this.type ==="getObservationsByQualityIndexReceived") {
+        var observations = this['json']['data'];
+
+        var observationValues = observations[0]["result"]["DataArray"]["values"];
+
+        var responseValues = [];
+        for (var j = 0; j < observationValues.length; j++) {
+            switch(optional["type"]) {
+                case "lessThan":
+                    if(observationValues[j][2] < optional["quality"]) {
+                        responseValues.push(observationValues[j]);
+                    }
+                    break;
+                case "lessThanAndEqual":
+                    if(observationValues[j][2] <= optional["quality"]) {
+                        responseValues.push(observationValues[j]);
+                    }
+                    break;
+                case "equal":
+                    if(observationValues[j][2] === optional["quality"]) {
+                        responseValues.push(observationValues[j]);
+                    }
+                    break;
+                case "greaterThanAndEqual":
+                    if(observationValues[j][2] >= optional["quality"]) {
+                        responseValues.push(observationValues[j]);
+                    }
+                    break;
+                case "greaterThan":
+                    if(observationValues[j][2] > optional["quality"]) {
+                        responseValues.push(observationValues[j]);
+                    }
+                    break;
+                case "between":
+                    if(observationValues[j][2] >= optional["quality"][0] && observationValues[j][2] <= optional["quality"][1]) {
+                        responseValues.push(observationValues[j]);
+                    }
+                    break;
+                default:
+                    console.log("WRONG CONSTRAINT TYPE FOR CHECKING QUALITY INDEX!!! SHOULD BE 'lessThan', 'lessThanAndEqual', 'equal', 'greaterThanAndEqual', 'greaterThan' or 'between'");
+            }
+        }
+        this['json']['data'][0]["result"]["DataArray"]["values"] = responseValues;
+        return this['json']['data'];
     } else {
         return this['json']['data'];
     }
@@ -144,9 +192,9 @@ istsos.once = function (eventType, func, opt_scope) {
     istsos.events._Handler.listenOnce(eventType, func, false, opt_scope);
 };
 
-istsos.fire = function (eventType, event) {
+istsos.fire = function (eventType, event, opt_data) {
     console.log("Firing event: " + eventType);
     istsos.events._Handler.dispatchEvent(
-        new istsos.events.JSONResponse(eventType, event)
+        new istsos.events.JSONResponse(eventType, event, opt_data)
     );
 };

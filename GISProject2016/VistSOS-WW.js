@@ -166,6 +166,9 @@ requirejs(['./data-provider', 'WebWorldWind/examples/LayerManager'],
 		    for (var i = 1; i < observedProperties.length; i++) {
                         var longName = observedProperties[i].name.split("-");
                         var name = longName.length > 2 ? longName[1] + "-" + longName[2] : longName[1];
+                        if (name == "relative-humidity") {
+                          name = "humidity";
+                        }
                         var uom = observedProperties[i].uom;
                         var checkbox = "<input type='checkbox' name='observedProperties' value=" + name + ">";
                         var label = "<label for=" + name + ">" + name + ", uom: " + uom + "</label>";

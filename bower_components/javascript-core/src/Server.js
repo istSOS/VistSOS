@@ -14,7 +14,7 @@ goog.require("goog.net.XhrIo");
  */
 istsos.Server = function (serverName, url, defaultDb, opt_config, opt_loginConfig) {
     this.serverName = serverName;
-    this.url = (url.endsWith("/")) ? url : url + "/";
+    this.url = (url.charAt(url.length - 1) === "/") ? url : url + "/";
     this.defaultDb = defaultDb;
     this.config = opt_config || new istsos.Configuration(null, this);
     this.loginConfig = opt_loginConfig || {};

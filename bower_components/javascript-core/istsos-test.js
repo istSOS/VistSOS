@@ -1,5 +1,6 @@
 istsos.on(istsos.events.EventType.ABOUT, function (ev) {
-    log(ev.getData(), 'ABOUT')
+    log(ev.getData(), 'ABOUT');
+
 });
 
 istsos.on(istsos.events.EventType.SERVICE, function (ev) {
@@ -296,6 +297,10 @@ istsos.on(istsos.events.EventType.DELETE_RATING_CURVE, function (ev) {
     console.log("DELETE VIRTUAL PROCEDURE RATING CURVE");
 });
 
+istsos.on(istsos.events.EventType.GETOBSERVATIONS_BY_QUALITY, function (ev) {
+    log(ev.getData(), 'GET OBSERVATIONS BY QUALITY INDEX CONSTRAINT');
+});
+
 
 
 /** ==================================================================================================== */
@@ -504,11 +509,11 @@ function getGEOJSON() {
     //TRY WITH
     //service.getFeatureCollection(3857)
     //service.getFeatureCollection(3857, offering)
-    //service.getFeatureCollection(3857, null, procedure)
+    service.getFeatureCollection(3857, null, procedure)
     //service.getFeatureCollection(3857, null, v_procedure)
     //service.getFeatureCollection(3857, offering, procedure)
     //service.getFeatureCollection(3857, offering, v_procedure)
-    service.getFeatureCollection(3857, offering);
+    //service.getFeatureCollection(3857, offering);
 }
 var air_rainfall = new istsos.ObservedProperty(service, "air-rainfall", "urn:ogc:def:parameter:x-istsos:1.0:meteo:air:rainfall", "", null, null);
 var air_temperature = new istsos.ObservedProperty(service, "air-temperature", "urn:ogc:def:parameter:x-istsos:1.0:meteo:air:temperature", "", null, null);
@@ -522,11 +527,17 @@ function getOBSERVATIONS() {
      air-temperature (°C)
      air-relative-humidity (%)
      air-wind-velocity (m/s)*/
-    service.getObservations(offering, procedure, [air_rainfall, air_temperature, air_wind_velocity, air_relative_humidity], beginTime, endTime);
+    var test_procedure = new istsos.Procedure(service, "LOCARNO", "", "", "foi", 3857, 25, 35, 45, [], "insitu-fixed-point", "");
+    var test_offering = new istsos.Offering("temporary", "", true, "", service);
+    service.getObservations(test_offering, [procedure, test_procedure], [air_temperature, air_rainfall], beginTime, endTime);
 }
 
 function getOBSERVATIONDATA() {
     service.getObservationsBySingleProperty(offering, procedure, air_rainfall, beginTime, endTime);
+}
+
+function getOBSERVATIONS_QI() {
+    service.getObservationsByQualityIndexConstraint(offering, procedure, air_rainfall, beginTime, endTime, 'between', [200,300]);
 }
 
 //POST

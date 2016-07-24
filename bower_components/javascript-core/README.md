@@ -41,7 +41,7 @@ var service = new istsos.Service("demo", server); //params opt_db, opt_config, o
 
 // create new offering and procedure
 var offering = new istsos.Offering("BELLINZONA", "", true, null, service);
-var procedure = new istsos.Procedure(service, "BELLINZONA", "", "", "foi", 3857, 25,35,45, [], "insitu-fixed", "");)
+var procedure = new istsos.Procedure(service, "BELLINZONA", "", "", "foi", 3857, 25,35,45, [], "insitu-fixed-point", "");)
 
 // create new observed properties
 var observedProperty_rainfall = new istsos.ObservedProperty(service, "air-rainfall", "urn:ogc:def:parameter:x-istsos:1.0:meteo:air:rainfall", "", null, null;

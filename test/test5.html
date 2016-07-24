@@ -5,26 +5,16 @@
   <link rel="import" href="../src/default-widget.html" async>  
 </head>
 <body>
-  <script>
-    window.addEventListener("HTMLImportsLoaded", function(e) { 
-      console.log("Imports are ready");
-    });
-
-    window.addEventListener("WebComponentsReady", function(e) { 
-      console.log("Components are ready");
-    });
-  </script>
   <div id="f2a24b67">
-    <istsos-chart type="line"
+    <istsos-chart type="punch-card"
      server="http://131.175.143.71/istsos"
      service="test"
      offering="offering1"
      procedure="Lugano"
-     property="humidity"
+     property="temperature"
      from="2015-01-01T13:46"
-     until="2015-06-15T23:46"
-     color="FF0000"
-     timeUnit="monthdate"
+     until="2016-06-30T23:46"
+     aggregate="mean"
      divId="f2a24b67">
     </istsos-chart>
   </div>
