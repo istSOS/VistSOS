@@ -43,16 +43,12 @@ requirejs(['./data-provider', 'WebWorldWind/examples/LayerManager'],
     
         // Define the images we'll use for the placemarks.
         var images = [
-            "station1.png",
-            "station2.png",
-            "plain-black.png",
-            "plain-green.png",
-            "plain-red.png",
-            "plain-yellow.png",
-            "plain-blue.png"
+            "beam.png",
+            "sensor.png",
+            "plain-red.png"
         ];
 
-        var pinLibrary = WorldWind.configuration.baseUrl + "images/pushpins/", // location of the image files            
+        var pinLibrary = "/vistsos/GISProject2016/WebWorldWind/images/", // location of the image files            
             placemarkLayer = new WorldWind.RenderableLayer("Placemarks"),
             placemarkAttributes = new WorldWind.PlacemarkAttributes(null);
 
@@ -101,7 +97,7 @@ requirejs(['./data-provider', 'WebWorldWind/examples/LayerManager'],
             // Create the placemark attributes for this placemark. Note that the attributes differ only by their
             // image URL.
             placemarkAttributes = new WorldWind.PlacemarkAttributes(placemarkAttributes);
-            placemarkAttributes.imageSource = pinLibrary + images[4];
+            placemarkAttributes.imageSource = pinLibrary + images[1];
             placemark.attributes = placemarkAttributes;
 
             // Create the highlight attributes for this placemark. Note that the normal attributes are specified as

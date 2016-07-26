@@ -39,7 +39,21 @@
         var server = this.getAttribute("server");
         var service = this.getAttribute("service");
         var offering = this.getAttribute("offering");
-        var procedure = this.getAttribute("procedure");
+        
+        // Validation of mandatory parameter properties.
+        var procedures = null;
+        try {
+          procedures = this.getAttribute("procedures").replace(/ /g, "").split(",");
+          if (procedures.indexOf("") > -1) { 
+            procedures = null;
+            throw new Error("Empty strings are not allowed as procedure names."); 
+          }
+        } catch(e) {
+          console.log(e);
+        }
+
+
+        // Validation of mandatory parameter properties.
         var props = null;
         try {
           props = this.getAttribute("property").toLowerCase().replace(/ /g, "").split(",");
@@ -54,7 +68,7 @@
         var until = this.getAttribute("until");
 
         // If mandatory parameters are not present, don't execute chart generation
-        if (server == null || service == null || offering == null || procedure == null || props == null || from == null || until == null) {
+        if (server == null || service == null || offering == null || procedures == null || props == null || from == null || until == null) {
           console.log("Please specify all the mandatory parameters.")
         } else {
           // Setting not  mandatory parameters with default values
@@ -79,7 +93,10 @@
           var divId = this.getAttribute("divId");
 
           if (moment.utc(from).isValid() && moment.utc(until).isValid()) {
-            getObservations(server, service, offering, procedure, props, from, until, loadSpec); // from data-provider.js 
+            // Get observations with the set of mandatory parameters using the script called data-provider.
+            // The callback function loadSpec is passed as a parameter in order to execute the chart specification loading
+            // after the successful execution of the function getObservations.
+            getObservations(server, service, offering, procedures, props, from, until, loadSpec);
           }
 
           function loadSpec(data, units) {
@@ -96,6 +113,8 @@
               getJSONSpec("default-scatterplot-spec", embedChart);
             } else if (chartType == "trellis") {
               getJSONSpec("default-trellis-spec", embedChart);
+            } else if (chartType == "histogram") {
+              getJSONSpec("default-histogram-spec", embedChart);
             } else if (chartType == "overview-detail") {
               vegaMode = "vega";
               getJSONSpec("default-overview-detail-spec", embedChart);
@@ -218,13 +237,27 @@
               } else {
                 jsonSpec.encoding.color.title = propertyName + "(" + uoms[propertyName] + ")";
               } 
+            } else if(chartType == "histogram") {
+              var propertyName = props[0];
+              jsonSpec.data.values = measurements;
+              jsonSpec.encoding.y.aggregate = aggregate;
+              jsonSpec.encoding.y.axis.title = propertyName + "(" + uoms[propertyName] + ") - " + aggregate; 
             } else {
               var propertyName = props[0];
               jsonSpec.data.values = measurements;
               jsonSpec.encoding.x.timeUnit = timeUnit;
               jsonSpec.encoding.y.field = propertyName;
               jsonSpec.encoding.y.title = propertyName + "(" + uoms[propertyName] + ")";
-              jsonSpec.encoding.color.value = "#" + color;
+
+              if (procedures.length > 1) {
+                var color = {
+                  "field": "symbol",
+                  "type": "nominal"
+                };
+                jsonSpec.encoding["color"] = color;
+              } else {
+                jsonSpec.encoding.color.value = "#" + color;
+              }
             }
           
             var embedSpec = { mode: vegaMode, spec: jsonSpec };
