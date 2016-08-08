@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="../bower_components/webcomponentsjs/webcomponents.min.js"></script>
+  <link rel="import" href="../src/default-widget.html" async>  
+</head>
+<body>
+  <div id="f2a24b67">
+    <istsos-chart type="histogram"
+     server="http://131.175.143.71/istsos"
+     service="test"
+     offering="offering1"
+     procedures="Lugano,Milano,Firenze"
+     property="temperature"
+     from="2015-01-01T13:46"
+     until="2015-06-30T23:46"
+     aggregateInterval="month"
+     aggregateFunction="average"
+     divId="f2a24b67">
+    </istsos-chart>
+  </div>
+</body>
+</html>

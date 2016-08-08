@@ -94,8 +94,37 @@ function getObservations(serverName, serviceName, offeringName, procedures, prop
               // Value obtained from array retrieved by the API method getObservations.
               var value = values[i][k]; 
 
-              if (fieldName === "Time") { 
+              if (fieldName === "Time") {
+                // Add full date time.
                 measurement[fieldName] = value;   
+
+                var observationDate = new Date(value);
+
+                // Add field date. Used for aggregation.
+                measurement["date"] = moment(observationDate).startOf("day").format("YYYY-MM-DD");
+
+                // Add field weekday, based on ISO definition, first day is Monday. Used for aggregation.
+                var isoWeekDay = moment(observationDate).isoWeekday();
+                var weekdayName = (isoWeekDay == 1 ? "monday" :
+                                   isoWeekDay == 2 ? "tuesday" :
+                                   isoWeekDay == 3 ? "wednesday" :
+                                   isoWeekDay == 4 ? "thursday" :
+                                   isoWeekDay == 5 ? "friday" :
+                                   isoWeekDay == 6 ? "saturday" :
+                                   "sunday");
+                measurement["weekday"] = weekdayName;
+
+                // Add field month with format Jan, Feb, Apr and so on in order to speed the aggregations by month.
+                var month = observationDate.toLocaleString("en-us", { month: "short" });
+                measurement["month"] = month;
+
+                // Add field weekmonth, which contains the week of the month taken from the observation date. Used for aggregation.
+                measurement["weekmonth"] = "Week " + Math.ceil(observationDate.getDate() / 7) + " " + month;
+
+
+                // Add field year. Used for aggregation.
+                measurement["year"] = moment(observationDate).year();
+
               } else if (fieldName.indexOf(propertyName) > -1 && !(fieldName.indexOf(":") > -1)) {
                 // Insert measurement value.
                 measurement[propertyName] = parseFloat(value); 

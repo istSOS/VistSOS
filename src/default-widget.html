@@ -33,7 +33,7 @@
         var jsonSpec = {};
         var measurements = [];
         var uoms = new Object();
-        var vegaMode = "vega-lite";
+        var vegaMode = "vega";
 
         // Mandatory parameters
         var server = this.getAttribute("server");
@@ -71,13 +71,18 @@
         if (server == null || service == null || offering == null || procedures == null || props == null || from == null || until == null) {
           console.log("Please specify all the mandatory parameters.")
         } else {
-          // Setting not  mandatory parameters with default values
+          // Instantiating not mandatory parameters with default values.
           var chartType = this.getAttribute("type") || "line";
-          var color = this.getAttribute("color") || "00A800";
-          var color2 = this.getAttribute("color2") || "00A800";
+          var height = parseInt(this.getAttribute("height")) || 250;
+          var width = parseInt(this.getAttribute("width")) || 500;
+          var color = this.getAttribute("color") || "#0072BB";
+          var color2 = this.getAttribute("color2") || "#FF4C3B";
           var strokeWidth = parseInt(this.getAttribute("strokeWidth")) || 1;
-          // Aggregate function applied when punch-card chart is selected
-          var aggregate = this.getAttribute("aggregate") || "average";
+          var aggregateFunction = this.getAttribute("aggregateFunction") || "average";
+          var aggregateInterval = this.getAttribute("aggregateInterval") || "month";
+
+
+
           // Time unit parameter applied when line, bar, punch-card or scatterplot chart is selected
           var timeUnit = this.getAttribute("timeUnit") || "month";
           // Second time unit parameter. Only applied when punch-card chart is selected
@@ -103,23 +108,17 @@
             measurements = data;
             uoms = units;
         
-            if (chartType == "line") {
-              getJSONSpec("default-lines-spec", embedChart); // from util.js
-            } else if (chartType == "bar") {
-              getJSONSpec("default-bars-spec", embedChart);
-            } else if (chartType == "punch-card") {
-              getJSONSpec("default-punch-card-spec", embedChart);
-            } else if (chartType == "scatterplot") {
-              getJSONSpec("default-scatterplot-spec", embedChart);
-            } else if (chartType == "trellis") {
-              getJSONSpec("default-trellis-spec", embedChart);
-            } else if (chartType == "histogram") {
-              getJSONSpec("default-histogram-spec", embedChart);
+            if (chartType == "histogram") {
+              if (procedures.length > 1) {
+                chartType = "multiple-bar-histogram";
+                getJSONSpec("default-multiple-bar-histogram-spec", embedChart);
+              } else {
+                chartType = "single-bar-histogram";
+                getJSONSpec("default-single-bar-histogram-spec", embedChart);
+              }
             } else if (chartType == "overview-detail") {
-              vegaMode = "vega";
               getJSONSpec("default-overview-detail-spec", embedChart);
             } else if (chartType == "multivariable") {
-              vegaMode = "vega";
               getJSONSpec("default-multivariable-spec", embedChart);
             }
           }
@@ -146,8 +145,8 @@
               jsonSpec.signals[3].init.expr = "datetime('" + suntil + "')";
               jsonSpec.signals[3].expr = "time(brush_start) === time(brush_end) ? datetime('" + suntil + "') : max(brush_start, brush_end)";
 
-              jsonSpec.marks[0].marks[0].marks[0].properties.update.fill.value = "#" + color;
-              jsonSpec.marks[1].marks[0].properties.update.fill.value = "#" + color2;
+              jsonSpec.marks[0].marks[0].marks[0].properties.update.fill.value = color;
+              jsonSpec.marks[1].marks[0].properties.update.fill.value = color2;
             } else if (chartType == "multivariable") {
 
               jsonSpec.data[0].values = measurements;
@@ -213,51 +212,54 @@
 
                 jsonSpec.marks[0].marks[0].properties.enter.strokeWidth.value = strokeWidth;
               }
-            } else if (chartType == "punch-card") {
+            } else if (chartType == "single-bar-histogram") {            
+              jsonSpec["height"] = height;
+              jsonSpec["width"] = width;
+              jsonSpec.data[0].values = measurements;
+             
+              // Create array containing the name of the fields used for the group by operation.
+              var groupby = ["symbol", aggregateInterval];
+              // Observed property passed as parameter by the user.
               var propertyName = props[0];
-              jsonSpec.data.values = measurements;
-              jsonSpec.encoding.size.field = propertyName;
-              jsonSpec.encoding.size.aggregate = aggregate;
-              jsonSpec.encoding.size.title = aggregate + " - " + propertyName + "(" + uoms[propertyName] + ")";
-              jsonSpec.encoding.color.value = "#" + color;
-              jsonSpec.encoding.y.timeUnit = timeUnit;
-              jsonSpec.encoding.x.timeUnit = timeUnit2;
-            } else if (chartType == "trellis") {
-              var propertyName = props[0];
-              jsonSpec.data.values = measurements;
-              jsonSpec.encoding.row.timeUnit = rowTimeUnit;
-              jsonSpec.encoding.x.timeUnit = xTimeUnit;
-              jsonSpec.encoding.y.timeUnit = yTimeUnit;
-              jsonSpec.encoding.color.field = propertyName;
-              jsonSpec.encoding.color.bin = bin;
+              
+              jsonSpec.data[0].transform[0].groupby = groupby;
+              jsonSpec.data[0].transform[0].summarize[0].field = propertyName;
+              jsonSpec.data[0].transform[0].summarize[0].ops = [aggregateFunction];
             
-              if (!bin) {
-                jsonSpec.encoding.color["aggregate"] = aggregate;
-                jsonSpec.encoding.color.title = aggregate + " - " + propertyName + "(" + uoms[propertyName] + ")";
-              } else {
-                jsonSpec.encoding.color.title = propertyName + "(" + uoms[propertyName] + ")";
-              } 
-            } else if(chartType == "histogram") {
-              var propertyName = props[0];
-              jsonSpec.data.values = measurements;
-              jsonSpec.encoding.y.aggregate = aggregate;
-              jsonSpec.encoding.y.axis.title = propertyName + "(" + uoms[propertyName] + ") - " + aggregate; 
-            } else {
-              var propertyName = props[0];
-              jsonSpec.data.values = measurements;
-              jsonSpec.encoding.x.timeUnit = timeUnit;
-              jsonSpec.encoding.y.field = propertyName;
-              jsonSpec.encoding.y.title = propertyName + "(" + uoms[propertyName] + ")";
+              jsonSpec.scales[0].domain["field"] = aggregateInterval;
+              // Legend color.
+              jsonSpec.scales[2].range = [color];
 
-              if (procedures.length > 1) {
-                var color = {
-                  "field": "symbol",
-                  "type": "nominal"
-                };
-                jsonSpec.encoding["color"] = color;
-              } else {
-                jsonSpec.encoding.color.value = "#" + color;
-              }
+              jsonSpec.axes[1].title =  propertyName + "(" + uoms[propertyName] + ")" + " - " + aggregateFunction;
+
+              // Configuration of tooltips showing the observation value when the cursor hover on the bars.
+              jsonSpec.marks[0].properties.enter.x["field"] = aggregateInterval;
+              jsonSpec.marks[1].properties.update.x["signal"] = "tooltip." + aggregateInterval;
+              
+              // Configuration of color for bar and for hover effect.
+              jsonSpec.marks[0].properties.update.fill[1].value = color;
+              jsonSpec.marks[0].properties.update.fill[0].value = color2;
+            } else if (chartType == "multiple-bar-histogram") {
+              jsonSpec["height"] = height;
+              jsonSpec["width"] = width;
+              jsonSpec.data[0].values = measurements;
+
+              // Create array containing the name of the fields used for the group by operation.
+              var groupby = ["symbol", aggregateInterval];
+              // Observed property passed as parameter by the user.
+              var propertyName = props[0];
+              
+              jsonSpec.data[0].transform[0].groupby = groupby;
+              jsonSpec.data[0].transform[0].summarize[0].field = propertyName;
+              jsonSpec.data[0].transform[0].summarize[0].ops = [aggregateFunction];
+
+              jsonSpec.scales[0].domain["field"] = aggregateInterval;
+              
+              jsonSpec.axes[1].title =  propertyName + "(" + uoms[propertyName] + ")" + " - " + aggregateFunction;
+
+              jsonSpec.marks[0].marks[0].from.transform[0].groupby = [aggregateInterval];
+              jsonSpec.marks[0].marks[0].marks[1].properties.update.fillOpacity[0].test = "tooltip." + aggregateInterval + "!=" + "datum." + aggregateInterval;
+              
             }
           
             var embedSpec = { mode: vegaMode, spec: jsonSpec };

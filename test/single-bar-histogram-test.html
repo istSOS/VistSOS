@@ -5,18 +5,20 @@
   <link rel="import" href="../src/default-widget.html" async>  
 </head>
 <body>
-  <!-- Chart types supported till now: line, bar, punch-card, scatterplot, overview-detail, multivariable -->
   <div id="f2a24b67">
-    <istsos-chart type="bar"
+    <istsos-chart type="histogram"
      server="http://131.175.143.71/istsos"
      service="test"
      offering="offering1"
-     procedures="Milano,Lugano"
+     procedures="Lugano"
      property="temperature"
-     from="2015-01-01T00:00"
-     until="2015-04-01T00:00"
-     color="00A800"
-     timeUnit="monthdate"
+     from="2015-01-01T13:46"
+     until="2015-01-07T23:46"
+     aggregateInterval="date"
+     aggregateFunction="average"
+     width="600"
+     color="#00A800"
+     color2="black"
      divId="f2a24b67">
     </istsos-chart>
   </div>
