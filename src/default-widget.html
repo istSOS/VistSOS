@@ -125,6 +125,7 @@
 
           function embedChart(jsonSpec) { 
             if (chartType == "overview-detail") {
+
               var sfrom = moment(from).format("MMM d YYYY");
               var suntil = moment(until).format("MMM d YYYY");
 
@@ -148,74 +149,47 @@
               jsonSpec.marks[0].marks[0].marks[0].properties.update.fill.value = color;
               jsonSpec.marks[1].marks[0].properties.update.fill.value = color2;
             } else if (chartType == "multivariable") {
-
+              // Asigning data to chart specification.
               jsonSpec.data[0].values = measurements;
-            
-              // Modification of values parsing
-              var parse = new Object();
-              for (var i = 0; i < props.length; i++) {
-                var propertyName = props[i];
-                parse[propertyName] = "number";
-              }
-              parse["Time"] = "date";
-              jsonSpec.data[0].format["parse"] = parse;
-
-              // Creation of scales, one for each variable/property
-              for (var i = 0; i < props.length; i++) {
-                var propertyName = props[i];
-                var yscale = new Object();
-                var scaleName = "y" + (i + 1);
-                yscale["name"] = scaleName;
-                yscale["type"] = "linear";
-                yscale["range"] = "height";
-                yscale["nice"] = true;
-              
-                var domain = new Object();
-                domain["data"] = "measurements";
-                domain["field"] = propertyName;
-                yscale["domain"] = domain;
-
-                jsonSpec.scales.push(yscale);
-              }
-             
-              // Creation of axes, one for each scale
-              jsonSpec.axes[0].format = timeFormat;
-              for (var i = 0; i < props.length; i++) {
-                var propertyName = props[i];
-                var yaxe = new Object();
-                yaxe["type"] = "y";
-                yaxe["scale"] = "y" + (i + 1);
-                //yaxe["title"] = // Title should come from uom field in data
-                yaxe["title"] = propertyName + "(" + uoms[propertyName] + ")";
-                if (i > 0) { yaxe["orient"] = "right"; } 
-                if (i > 1) { yaxe["offset"] = 50; }
-
-                jsonSpec.axes.push(yaxe);
-              }
-
-              // Definition of enter properties for the marks of the chart
-              for (var i = 0; i < props.length; i++) {
-                var propertyName = props[i];
-                var enterProperty = new Object();
-                var scaleId = "y" + (i + 1); 
- 
-                enterProperty["scale"] = scaleId;
-                enterProperty["field"] = propertyName;
-                
-                if (i > 0) {
-                  jsonSpec.marks[0].marks[0].properties.enter[scaleId] = enterProperty;
-                  jsonSpec.marks[0].marks[1].properties.enter[scaleId] = enterProperty;
-                } else {
-                  jsonSpec.marks[0].marks[0].properties.enter["y"] = enterProperty;
-                  jsonSpec.marks[0].marks[1].properties.enter["y"] = enterProperty;
-                }
-
-                jsonSpec.marks[0].marks[0].properties.enter.strokeWidth.value = strokeWidth;
-              }
-            } else if (chartType == "single-bar-histogram") {            
+   
+              // Initializing size of the chart
               jsonSpec["height"] = height;
               jsonSpec["width"] = width;
+
+              var property1 = props[0];
+              var property2 = props[1];
+              
+              // Initializing format of observed properties.
+              jsonSpec.data[0].format.parse[property1] = "number";
+              jsonSpec.data[0].format.parse[property2] = "number";
+              
+              // Modifying scales configuration with observed properties.
+              jsonSpec.scales[2].domain.field = property1;
+              jsonSpec.scales[3].domain.field = property2;
+
+              // Initializing axes titles.
+              jsonSpec.axes[1].title = property1 + "(" + uoms[property1] + ")";
+              jsonSpec.axes[2].title = property2 + "(" + uoms[property2] + ")";
+
+              // Modification of marks configuration //
+              // Line configuration.
+              jsonSpec.marks[0].marks[0].properties.enter.y.field = property1;
+              jsonSpec.marks[0].marks[0].properties.enter.y2.field = property2;
+              // Symbol (circle mark) configuration.
+              jsonSpec.marks[0].marks[1].properties.enter.y.field = property1;
+              jsonSpec.marks[0].marks[1].properties.enter.y2.field = property2;
+              // Tooltip configuration.
+              jsonSpec.marks[0].marks[2].properties.update.y.signal = "tooltip." + property1;
+              jsonSpec.marks[0].marks[2].marks[0].properties.update.text.signal = "tooltip." + property1;
+              jsonSpec.marks[0].marks[2].marks[1].properties.update.text.signal = "tooltip." + property2;
+            
+            } else if (chartType == "single-bar-histogram") {            
+              // Asigning data to chart specification.
               jsonSpec.data[0].values = measurements;
+
+              // Initializing size of the chart
+              jsonSpec["height"] = height;
+              jsonSpec["width"] = width;
              
               // Create array containing the name of the fields used for the group by operation.
               var groupby = ["symbol", aggregateInterval];
