@@ -52,7 +52,6 @@
           console.log(e);
         }
 
-
         // Validation of mandatory parameter properties.
         var props = null;
         try {
@@ -120,34 +119,53 @@
               getJSONSpec("default-overview-detail-spec", embedChart);
             } else if (chartType == "multivariable") {
               getJSONSpec("default-multivariable-spec", embedChart);
+            } else if (chartType == "line") {
+              getJSONSpec("default-line-spec", embedChart);
             }
           }
 
           function embedChart(jsonSpec) { 
             if (chartType == "overview-detail") {
-
-              var sfrom = moment(from).format("MMM d YYYY");
-              var suntil = moment(until).format("MMM d YYYY");
-
+              // Asigning data to chart specification.
               jsonSpec.data[0].values = measurements;
-              var propertyName = props[0];
-              jsonSpec.data[0].format.parse[propertyName] = jsonSpec.data[0].format.parse["measurement"];
-              delete jsonSpec.data[0].format.parse["measurement"];
+  
+              // Initializing size of the chart
+              jsonSpec["height"] = height;
+              jsonSpec["width"] = width;
 
-              jsonSpec.scales[1].domain.field = propertyName;
-              jsonSpec.scales[3].domain.field = propertyName;
-              jsonSpec.marks[0].axes[1].title = propertyName + "(" + uoms[propertyName] + ")";
-              jsonSpec.marks[0].marks[0].marks[0].properties.update.y.field = propertyName;
-              jsonSpec.marks[1].marks[0].properties.update.y.field = propertyName;
-
-              jsonSpec.signals[1].init.expr = "datetime('" + sfrom + "')";
+              // Defining min and max dates for x axis.
+              var sfrom = moment(from).format("YYYY-MM-DD");
+              var suntil = moment(until).format("YYYY-MM-DD");
+              
+              // Modification of signals configuration according to min and max dates for x axis.
               jsonSpec.signals[2].init.expr = "datetime('" + sfrom + "')";
-              jsonSpec.signals[2].expr = "time(brush_start) === time(brush_end) ? datetime('" + sfrom + "') : min(brush_start, brush_end)";
-              jsonSpec.signals[3].init.expr = "datetime('" + suntil + "')";
-              jsonSpec.signals[3].expr = "time(brush_start) === time(brush_end) ? datetime('" + suntil + "') : max(brush_start, brush_end)";
+              jsonSpec.signals[3].init.expr = "datetime('" + sfrom + "')";
+              jsonSpec.signals[3].expr = "time(brush_start) === time(brush_end) ? datetime('" + sfrom + "') : min(brush_start, brush_end)";
+              jsonSpec.signals[4].init.expr = "datetime('" + suntil + "')";
+              jsonSpec.signals[4].expr = "time(brush_start) === time(brush_end) ? datetime('" + suntil + "') : max(brush_start, brush_end)";
 
-              jsonSpec.marks[0].marks[0].marks[0].properties.update.fill.value = color;
-              jsonSpec.marks[1].marks[0].properties.update.fill.value = color2;
+              var property = props[0];
+              
+              // Modifying scales configuration with observed properties.
+              jsonSpec.scales[1].domain.field = property;
+              jsonSpec.scales[3].domain.field = property;
+
+              // Initializing axes titles.
+              jsonSpec.marks[0].axes[1].title = property + "(" + uoms[property] + ")";
+
+              // Modification of marks configuration //
+              // Line configuration.
+              jsonSpec.marks[0].marks[0].marks[0].properties.enter.y.field = property;
+              jsonSpec.marks[0].marks[0].marks[0].properties.update.y.field = property;
+              // Symbol (circle mark) configuration.
+              jsonSpec.marks[0].marks[0].marks[1].properties.enter.y.field = property;
+              jsonSpec.marks[0].marks[0].marks[1].properties.update.y.field = property;
+              // Tooltip configuration.
+              jsonSpec.marks[0].marks[0].marks[2].properties.update.y.signal = "tooltip." + property;
+              jsonSpec.marks[0].marks[0].marks[2].marks[0].properties.update.text.signal = "tooltip." + property;
+              // Overview section configuration.
+              jsonSpec.marks[1].marks[0].properties.update.y.field = property;
+
             } else if (chartType == "multivariable") {
               // Asigning data to chart specification.
               jsonSpec.data[0].values = measurements;
@@ -183,6 +201,33 @@
               jsonSpec.marks[0].marks[2].marks[0].properties.update.text.signal = "tooltip." + property1;
               jsonSpec.marks[0].marks[2].marks[1].properties.update.text.signal = "tooltip." + property2;
             
+            } else if (chartType == "line") {
+
+              // Asigning data to chart specification.
+              jsonSpec.data[0].values = measurements;
+   
+              // Initializing size of the chart
+              jsonSpec["height"] = height;
+              jsonSpec["width"] = width;
+
+              var property = props[0];
+             
+               // Modifying scales configuration with observed properties.
+              jsonSpec.scales[1].domain.field = property;
+
+              // Initializing axes titles.
+              jsonSpec.axes[1].title = property + "(" + uoms[property] + ")";
+
+              // Modification of marks configuration //
+              // Line configuration.
+              jsonSpec.marks[0].marks[0].properties.enter.y.field = property;
+              // Symbol (circle mark) configuration.
+              jsonSpec.marks[0].marks[1].properties.enter.y.field = property;
+              // Tooltip configuration.
+              jsonSpec.marks[0].marks[2].properties.update.y.signal = "tooltip." + property;
+              jsonSpec.marks[0].marks[2].marks[0].properties.update.text.signal = "tooltip." + property;
+
+
             } else if (chartType == "single-bar-histogram") {            
               // Asigning data to chart specification.
               jsonSpec.data[0].values = measurements;
