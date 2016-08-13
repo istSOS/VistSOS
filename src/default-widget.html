@@ -55,7 +55,7 @@
         // Validation of mandatory parameter properties.
         var props = null;
         try {
-          props = this.getAttribute("property").toLowerCase().replace(/ /g, "").split(",");
+          props = this.getAttribute("property").toLowerCase().replace(/ /g, "").replace(/-/g, "_").split(",");
           if (props.indexOf("") > -1) { 
             props = null;
             throw new Error("Empty strings are not allowed as observed property values."); 
@@ -229,7 +229,7 @@
              
               // Observed property passed as parameter by the user.
               var property = props[0];
-             
+              
               // In the json chart specification the value of expr is a formula to round the measurement to 2 decimal digits.
               jsonSpec.data[0].transform[0].expr = "round(datum." + property + " * 100) / 100";
             

@@ -17,22 +17,37 @@ function getObservations(serverName, serviceName, offeringName, procedures, prop
     var procedure = new istsos.Procedure(service, procedureName, "", "", "", 4326, 0, 0, 0, [], "insitu-fixed-point", "");
     procedureArray.push(procedure);
   }
- 
+
   var props = [];
   for (var i = 0; i < propsNames.length; i++) {
     var name = "";
     var urn = "";
 
-    if (propsNames[i] == "rainfall") {
+    if (propsNames[i] === "air_rainfall") {
       var name = "air-rainfall"; 
       var urn = "urn:ogc:def:parameter:x-istsos:1.0:meteo:air:rainfall";
-    } else if (propsNames[i] == "temperature") {
+    } else if (propsNames[i] === "air_temperature") {
       var name = "air-temperature"; 
       var urn = "urn:ogc:def:parameter:x-istsos:1.0:meteo:air:temperature"; 
-    } else if (propsNames[i] == "humidity") {
+    } else if (propsNames[i] === "air_relative_humidity") {
       var name = "air-relative-humidity";
       var urn = "urn:ogc:def:parameter:x-istsos:1.0:meteo:air:humidity:relative"; 
-    } else {}
+    } else if (propsNames[i] === "air_wind_velocity") {
+      var name = "air-wind-velocity";
+      var urn = "urn:ogc:def:parameter:x-istsos:1.0:meteo:air:wind:velocity"; 
+    } else if (propsNames[i] === "river_discharge") {
+      var name = "river-discharge";
+      var urn = "urn:ogc:def:parameter:x-istsos:1.0:river:water:discharge"; 
+    } else if (propsNames[i] === "river_height") {
+      var name = "river-height";
+      var urn = "urn:ogc:def:parameter:x-istsos:1.0:river:water:height"; 
+    } else if (propsNames[i] === "soil_evapotranspiration") {
+      var name = "soil-evapotranspiration";
+      var urn = "urn:ogc:def:parameter:x-istsos:1.0:meteo:soil:evapotranspiration"; 
+    } else if (propsNames[i] === "solar_radiation") {
+      var name = "solar-radiation";
+      var urn = "urn:ogc:def:parameter:x-istsos:1.0:meteo:solar:radiation"; 
+    } 
 
     var property = new istsos.ObservedProperty(service, name, urn, "", null, null);
     props.push(property);
@@ -99,7 +114,7 @@ function getObservations(serverName, serviceName, offeringName, procedures, prop
             var measurement = new Object();
             for (var k = 0; k < values[i].length; k++) {
               // Take property name from Fields array.
-              var fieldName = fields[k].name;
+              var fieldName = fields[k].name.replace(/-/g, "_");
               // Value obtained from array retrieved by the API method getObservations.
               var value = values[i][k]; 
 
