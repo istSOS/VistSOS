@@ -3,7 +3,7 @@
     <meta charset="utf-8">
     <title>istSOS Chart Component</title>
     <!-- <script src="../bower_components/webcomponentsjs/webcomponents.min.js"></script> -->
-    <script src="../bower_components/javascript-core/compiled/istsos-core-2.0.js"></script>
+    <script src="../bower_components/javascript-core/compiled/istsos-core-2.1.js"></script>
     <script src="//d3js.org./d3.v3.min.js"></script>
     <script src="//vega.github.io/vega/vega.js"></script>
     <script src="//vega.github.io/vega-lite/vega-lite.js"></script>
@@ -77,22 +77,13 @@
           var color = this.getAttribute("color") || "#0072BB";
           var color2 = this.getAttribute("color2") || "#FF4C3B";
           var strokeWidth = parseInt(this.getAttribute("strokeWidth")) || 1;
-          var aggregateFunction = this.getAttribute("aggregateFunction") || "average";
-          var aggregateInterval = this.getAttribute("aggregateInterval") || "month";
 
-
-
-          // Time unit parameter applied when line, bar, punch-card or scatterplot chart is selected
-          var timeUnit = this.getAttribute("timeUnit") || "month";
-          // Second time unit parameter. Only applied when punch-card chart is selected
-          var timeUnit2 = this.getAttribute("timeUnit2") || "hours";
-          // Time format to apply when multivariable chart is selected
-          var timeFormat = this.getAttribute("timeFormat") || "";
-          // The next set of parameters are applied only to trellis charts
-          var rowTimeUnit = this.getAttribute("rowTimeUnit") || "year";
-          var xTimeUnit = this.getAttribute("xTimeUnit") || "month";
-          var yTimeUnit = this.getAttribute("yTimeUnit") || "hours";
-          var bin = this.getAttribute("bin") == "true" ? true : false;
+          var aggregateInterval = "noAggregation";
+          var aggregateFunction = "noAggregation";
+          if (chartType === "histogram") {
+            aggregateInterval = this.getAttribute("aggregateInterval") || "P1W";
+            aggregateFunction = this.getAttribute("aggregateFunction") || "avg";
+          }
 
           var divId = this.getAttribute("divId");
 
@@ -100,7 +91,7 @@
             // Get observations with the set of mandatory parameters using the script called data-provider.
             // The callback function loadSpec is passed as a parameter in order to execute the chart specification loading
             // after the successful execution of the function getObservations.
-            getObservations(server, service, offering, procedures, props, from, until, loadSpec);
+            getObservations(server, service, offering, procedures, props, from, until, aggregateInterval, aggregateFunction, loadSpec);
           }
 
           function loadSpec(data, units) {
@@ -236,49 +227,40 @@
               jsonSpec["height"] = height;
               jsonSpec["width"] = width;
              
-              // Create array containing the name of the fields used for the group by operation.
-              var groupby = ["symbol", aggregateInterval];
               // Observed property passed as parameter by the user.
-              var propertyName = props[0];
-              
-              jsonSpec.data[0].transform[0].groupby = groupby;
-              jsonSpec.data[0].transform[0].summarize[0].field = propertyName;
-              jsonSpec.data[0].transform[0].summarize[0].ops = [aggregateFunction];
+              var property = props[0];
+             
+              // In the json chart specification the value of expr is a formula to round the measurement to 2 decimal digits.
+              jsonSpec.data[0].transform[0].expr = "round(datum." + property + " * 100) / 100";
             
-              jsonSpec.scales[0].domain["field"] = aggregateInterval;
               // Legend color.
               jsonSpec.scales[2].range = [color];
 
-              jsonSpec.axes[1].title =  propertyName + "(" + uoms[propertyName] + ")" + " - " + aggregateFunction;
-
-              // Configuration of tooltips showing the observation value when the cursor hover on the bars.
-              jsonSpec.marks[0].properties.enter.x["field"] = aggregateInterval;
-              jsonSpec.marks[1].properties.update.x["signal"] = "tooltip." + aggregateInterval;
+              jsonSpec.axes[0].title = "Time interval " + aggregateInterval;
+              jsonSpec.axes[1].title = property + "(" + uoms[property] + ")" + " - " + aggregateFunction;
               
               // Configuration of color for bar and for hover effect.
               jsonSpec.marks[0].properties.update.fill[1].value = color;
               jsonSpec.marks[0].properties.update.fill[0].value = color2;
             } else if (chartType == "multiple-bar-histogram") {
+              // Asigning data to chart specification.
+              jsonSpec.data[0].values = measurements;
+
+              // Initializing size of the chart
               jsonSpec["height"] = height;
               jsonSpec["width"] = width;
-              jsonSpec.data[0].values = measurements;
 
               // Create array containing the name of the fields used for the group by operation.
               var groupby = ["symbol", aggregateInterval];
+              
               // Observed property passed as parameter by the user.
-              var propertyName = props[0];
-              
-              jsonSpec.data[0].transform[0].groupby = groupby;
-              jsonSpec.data[0].transform[0].summarize[0].field = propertyName;
-              jsonSpec.data[0].transform[0].summarize[0].ops = [aggregateFunction];
-
-              jsonSpec.scales[0].domain["field"] = aggregateInterval;
-              
-              jsonSpec.axes[1].title =  propertyName + "(" + uoms[propertyName] + ")" + " - " + aggregateFunction;
-
-              jsonSpec.marks[0].marks[0].from.transform[0].groupby = [aggregateInterval];
-              jsonSpec.marks[0].marks[0].marks[1].properties.update.fillOpacity[0].test = "tooltip." + aggregateInterval + "!=" + "datum." + aggregateInterval;
-              
+              var property = props[0];
+ 
+              // In the json chart specification the value of expr is a formula to round the measurement to 2 decimal digits.
+              jsonSpec.data[0].transform[0].expr = "round(datum." + property + " * 100) / 100";
+ 
+              jsonSpec.axes[0].title = "Time interval " + aggregateInterval;
+              jsonSpec.axes[1].title =  property + "(" + uoms[property] + ")" + " - " + aggregateFunction; 
             }
           
             var embedSpec = { mode: vegaMode, spec: jsonSpec };

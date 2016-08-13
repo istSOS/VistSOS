@@ -304,6 +304,16 @@ istsos.Service.prototype = {
      * @param {Array<istsos.ObservedProperty>} observed_properties
      * @param {istsos.Date} begin_time
      * @param {istsos.Date} end_time
+     * @param {JSON} opt_aggregationConf
+     */
+     /*
+     << HOW TO CREATE AGGREGATION CONF JSON >>
+     {
+        "function": "SUM", "MAX", "MIN" OR "AVG",
+        "interval": example - "P1DT" is (1 day), "PT24H" is (24 hours),
+        "noData": optional
+        "noDataQi": optional
+     }
      */
     getObservations: function (offering, procedures, observed_properties, begin_time, end_time) {
         var proc_names = [];
@@ -328,6 +338,61 @@ istsos.Service.prototype = {
             "/eventtime/" + begin + "/" + end;
         console.log(url);
         this.executeRequest(url, istsos.events.EventType.GETOBSERVATIONS, "GET");
+    },
+    /**
+     * @fires istsos.Service#istsos.events.EventType: GETOBSERVATIONS_AGG
+     * @param {istsos.Offering} offering
+     * @param {Array<istsos.Procedure|istsos.VirtualProcedure>} procedures
+     * @param {Array<istsos.ObservedProperty>} observed_properties
+     * @param {istsos.Date} begin_time
+     * @param {istsos.Date} end_time
+     * @param {String} aggFunc allowed - "SUM", "MAX", "MIN" OR "AVG"
+     * @param {String} aggInterval example - "P1DT" is 1 day or "PT24H" is 24H...
+     * @param {int} aggNoData
+     * @param {int} aggNoDataQI
+     */
+    getObservationsWithAggregation: function (offering, procedures, observed_properties, begin_time, end_time, aggFunc, aggInterval, aggNoData, aggNoDataQI) {
+        var proc_names = [];
+        var aggTrue = ""
+        if(aggFunc && aggInterval) {
+            aggTrue = "?"
+        }
+        for(var p = 0; p < procedures.length; p++) {
+            if (procedures[p].systemType === "virtual") {
+                proc_names.push(procedures[p].getVirtualProcedureJSON()["system"]);
+            } else if (procedures[p].systemType === "insitu-fixed-point" || procedures[p].systemType === "insitu-mobile-point") {
+                proc_names.push(procedures[p].getProcedureJSON()["system"]);
+            } else {
+                console.log(procedures[p] + ": WRONG TYPE!" );
+            }
+        }
+
+        var urns = [];
+        for (var i = 0; i < observed_properties.length; i++) {
+            urns.push(observed_properties[i].getObservedPropertyJSON()["definition"]);
+        }
+        var begin = (begin_time instanceof istsos.Date) ? begin_time.getDateString() : begin_time;
+        var end = (end_time instanceof istsos.Date) ? end_time.getDateString() : end_time;
+        var url = this.server.getUrl() + "wa/istsos/services/" + this.serviceName + "/operations/getobservation/offerings/" +
+            offering.getOfferingJSON()["name"] + "/procedures/" + proc_names.toString() + "/observedproperties/" + urns.toString() +
+            "/eventtime/" + begin + "/" + end + aggTrue;
+
+        if(aggFunc && aggInterval) {
+            if(aggFunc === "SUM" || aggFunc === "MAX" || aggFunc === "MIN" || aggFunc === "AVG") {
+                url += "aggregatefunction=" + aggFunc + "&" + "aggregateinterval=" + aggInterval;
+            } else {
+                console.log("Incorrect aggregate function!!!");
+            }
+
+        }
+
+        if(aggNoData && aggNoDataQI) {
+            url += "&aggregatenodata=" + aggNoData.toString() + "&aggregatenodataqi=" + aggNoDataQI.toString();
+        }
+
+
+        console.log(url);
+        this.executeRequest(url, istsos.events.EventType.GETOBSERVATIONS_AGG, "GET");
     },
     /**
      * @fires istsos.Service#istsos.events.EventType: GETOBSERVATIONS_BY_PROPERTY

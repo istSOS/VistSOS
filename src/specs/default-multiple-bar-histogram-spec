@@ -15,20 +15,19 @@
       "values": [],
       "transform": [
         {
-          "type": "facet",
-          "groupby": ["month","symbol"],
-          "summarize": [
-            {
-              "field": "measurement",
-              "ops": ["average"],
-              "as": ["aggregated"]
-            }
-          ]
+          "type": "formula",
+          "field": "aggregated",
+          "expr": "round(datum.measurement * 100) / 100"
         },
         {
           "type": "formula",
-          "field": "aggregated",
-          "expr": "round(datum.aggregated * 100) / 100"
+          "field": "Time",
+          "expr": "replace(datum.Time, \"T\", \" \")"
+        },
+        {
+          "type": "formula",
+          "field": "Time",
+          "expr": "substring(datum.Time, 0, 19)"
         }
       ]
     }
@@ -37,7 +36,7 @@
     {
       "name": "cat",
       "type": "ordinal",
-      "domain": {"data": "data","field": "month"},
+      "domain": {"data": "data","field": "Time"},
       "range": "width",
       "padding": 0.2
     },
@@ -57,7 +56,18 @@
     }
   ],
   "axes": [
-    {"type": "x","scale": "cat"},
+    {
+      "type": "x",
+      "scale": "cat",
+      "properties": {
+        "labels": {
+          "angle": {"value": 390},
+          "fontSize": {"value": 10},
+          "align": {"value": "left"},
+          "baseline": {"value": "middle"}
+        }
+      }
+    },
     {
       "type": "y",
       "scale": "val",
@@ -80,11 +90,11 @@
           "type": "group",
           "from": {
             "data": "data",
-            "transform": [{"type": "facet","groupby": ["month"]}]
+            "transform": [{"type": "facet","groupby": ["Time"]}]
           },
           "properties": {
             "enter": {
-              "x": {"scale": "cat","field": "key"},
+              "x": {"scale": "cat","field": "Time"},
               "width": {"scale": "cat","band": true}
             }
           },
@@ -133,7 +143,7 @@
                   },
                   "text": {"signal": "tooltip.aggregated"},
                   "fillOpacity": [
-                    {"test": "tooltip.month != datum.month", "value": 0},
+                    {"test": "tooltip.Time != datum.Time", "value": 0},
                     {"value": 1}
                   ]
                 }

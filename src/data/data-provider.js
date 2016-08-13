@@ -1,4 +1,4 @@
-function getObservations(serverName, serviceName, offeringName, procedures, propsNames, from, until, callback) {
+function getObservations(serverName, serviceName, offeringName, procedures, propsNames, from, until, aggregateInterval, aggregateFunction, callback) {
 
   // BEGIN initialization of istSOS-core objects used to call the API method getObservations
   var istsosContainer = new istsos.IstSOS();
@@ -61,11 +61,20 @@ function getObservations(serverName, serviceName, offeringName, procedures, prop
     untilOffset = parseInt(until.substr(until.indexOf("+") + 1, 2));
   }
   var until = new istsos.Date(untilYear, untilMonth, untilDay, untilHour, untilMin, untilSec, untilOffset, "");
-  // END initialization of istSOS-core objects used to call the API method getObservations.
+  
+  // END initialization of istSOS-core objects used to call the API method getObservations. //
+  
+  var eventType = istsos.events.EventType.GETOBSERVATIONS;
+  if (aggregateInterval === "noAggregation" || aggregateFunction === "noAggregation") {
+    service.getObservations(offering, procedureArray, props, begin, until);
+  } else {
+    //var aggregateNoData = -999.9;
+    //var aggregateNoDataQI = -100;
+    eventType = istsos.events.EventType.GETOBSERVATIONS_AGG;
+    service.getObservationsWithAggregation(offering, procedureArray, props, begin, until, aggregateFunction, aggregateInterval);
+  }
 
-  service.getObservations(offering, procedureArray, props, begin, until);
-
-  istsos.on(istsos.events.EventType.GETOBSERVATIONS, function(ev) {
+  istsos.once(eventType, function(ev) {
     var measurements = [];
     var uoms = new Object();
 
@@ -84,7 +93,7 @@ function getObservations(serverName, serviceName, offeringName, procedures, prop
       for (var i = 0; i < values.length; i++) {
         // Discard sub-arrays with measuremente values equal to -999.00000 (outlier probably because of experimental error).
         // Should be removed once Javascript Core supports Quality Index parameters.
-        if (!(values[i].indexOf("-999.000000") > -1)) {
+        if (values[i][1].indexOf("-999") === -1) {
           for (var j = 0; j < propsNames.length; j ++) {
             var propertyName = propsNames[j];
             var measurement = new Object();
@@ -95,35 +104,8 @@ function getObservations(serverName, serviceName, offeringName, procedures, prop
               var value = values[i][k]; 
 
               if (fieldName === "Time") {
-                // Add full date time.
+                // Add observation date time.
                 measurement[fieldName] = value;   
-
-                var observationDate = new Date(value);
-
-                // Add field date. Used for aggregation.
-                measurement["date"] = moment(observationDate).startOf("day").format("YYYY-MM-DD");
-
-                // Add field weekday, based on ISO definition, first day is Monday. Used for aggregation.
-                var isoWeekDay = moment(observationDate).isoWeekday();
-                var weekdayName = (isoWeekDay == 1 ? "monday" :
-                                   isoWeekDay == 2 ? "tuesday" :
-                                   isoWeekDay == 3 ? "wednesday" :
-                                   isoWeekDay == 4 ? "thursday" :
-                                   isoWeekDay == 5 ? "friday" :
-                                   isoWeekDay == 6 ? "saturday" :
-                                   "sunday");
-                measurement["weekday"] = weekdayName;
-
-                // Add field month with format Jan, Feb, Apr and so on in order to speed the aggregations by month.
-                var month = observationDate.toLocaleString("en-us", { month: "short" });
-                measurement["month"] = month;
-
-                // Add field weekmonth, which contains the week of the month taken from the observation date. Used for aggregation.
-                measurement["weekmonth"] = "Week " + Math.ceil(observationDate.getDate() / 7) + " " + month;
-
-
-                // Add field year. Used for aggregation.
-                measurement["year"] = moment(observationDate).year();
 
               } else if (fieldName.indexOf(propertyName) > -1 && !(fieldName.indexOf(":") > -1)) {
                 // Insert measurement value.
@@ -144,7 +126,6 @@ function getObservations(serverName, serviceName, offeringName, procedures, prop
         }
       }
     }
-  
     callback(measurements, uoms);
   });
 }

@@ -6,17 +6,18 @@
 </head>
 <body>
   <!-- Chart types supported till now: line, bar, punch-card, scatterplot, overview-detail, multivariable -->
-  <div id="f2a24b67">
-    <istsos-chart type="multivariable"
-     server="http://131.175.143.71/istsos"
-     service="test"
-     offering="offering1"
-     procedures="Lugano"
-     property="temperature,humidity"
-     from="2015-01-01T00:00"
-     until="2015-01-07T11:00"
-     color="000000"
-     divId="f2a24b67">
+  <div id="f2a24b61">
+    <istsos-chart type="line"
+     server="http://istsos.org/istsos"
+     service="demo"
+     offering="temporary"
+     procedures="BELLINZONA,GRABOW"
+     property="temperature"
+     from="2014-05-04T00:00"
+     until="2014-05-05T23:00"
+     width="500"
+     height="250"
+     divId="f2a24b61">
     </istsos-chart>
   </div>
 </body>

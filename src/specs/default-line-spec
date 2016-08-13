@@ -45,7 +45,18 @@
     }
   ],
   "axes": [
-    {"type": "x","scale": "x","format": "%Y-%m-%d"},
+    {
+      "type": "x",
+      "scale": "x",
+      "properties": {
+        "labels": {
+          "angle": {"value": 390},
+          "fontSize": {"value": 10},
+          "align": {"value": "left"},
+          "baseline": {"value": "middle"}
+        }
+      }
+    },
     {
       "type": "y",
       "scale": "y",
