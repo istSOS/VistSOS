@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Showcase VistSOS charts</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link href="css/1-col-portfolio.css" rel="stylesheet">
+
+    <script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script>
+    
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+</head>
+
+<body>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+        <div class="container">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="https://github.com/felipe07/VistSOS-1/">VistSOS Charts</a>
+            </div>                        
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav">
+                    <li>
+                        <a href="#line">Line</a>
+                    </li>
+                    <li>
+                        <a href="#multi-series">Multi-series</a>
+                    </li>
+                    <li>
+                        <a href="#multi-variable">Multi-variable</a>
+                    </li>
+                    <li>
+                        <a href="#overview-detail">Overview-detail</a>
+                    </li>
+                    <li>
+                        <a href="#single-bar-histogram">Single bar histogram</a>
+                    </li>
+                    <li>
+                        <a href="#multiple-bar-histogram">Multiple bar histogram</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <!-- /.container -->
+    </nav>
+
+    <!-- Page Content -->
+    <div class="container">
+
+        <!-- Project One -->
+        <div class="row">
+            <a name="line"><h3>Line chart</h3></a>
+            <div class="col-md-7">                
+                <iframe height="350" width="800" frameBorder="0" src="http://131.175.143.71/vistsos/test/line-test.html"></iframe>
+            </div>
+        </div> 
+        <div class="row">            
+            <div class="col-md-5">                
+                <h4>Code</h4>
+                <pre class="prettyprint">&lt;div id=&quot;f2a24b61&quot;&gt;<br/>    &lt;istsos-chart type=&quot;line&quot;<br/>     server=&quot;http://istsos.org/istsos&quot;<br/>     service=&quot;demo&quot;<br/>     offering=&quot;BELLINZONA&quot;<br/>     procedures=&quot;BELLINZONA&quot;<br/>     property=&quot;air-temperature&quot;<br/>     from=&quot;2014-05-07T00:00&quot;<br/>     until=&quot;2014-05-08T00:00&quot;<br/>     width=&quot;500&quot;<br/>     height=&quot;250&quot;<br/>     divId=&quot;f2a24b61&quot;&gt;<br/>    &lt;/istsos-chart&gt;<br/>&lt;/div&gt;
+                </pre>            
+            </div>
+        </div>        
+        <!-- /.row -->
+
+        <hr>
+        
+        <div class="row">
+            <a name="multi-series"><h3>Multi-series chart</h3></a>
+            <div class="col-md-7">                
+                <iframe height="350" width="800" frameBorder="0" src="http://131.175.143.71/vistsos/test/multiline-test.html"></iframe>
+            </div>
+        </div> 
+        <div class="row">            
+            <div class="col-md-5">                
+                <h4>Code</h4>
+                <pre class="prettyprint">&lt;div id=&quot;f2a24b61&quot;&gt;<br/>    &lt;istsos-chart type=&quot;line&quot;<br/>     server=&quot;http://istsos.org/istsos&quot;<br/>     service=&quot;demo&quot;<br/>     offering=&quot;temporary&quot;<br/>     procedures=&quot;BELLINZONA,GRABOW&quot;<br/>     property=&quot;air-temperature&quot;<br/>     from=&quot;2014-05-04T00:00&quot;<br/>     until=&quot;2014-05-05T23:00&quot;<br/>     width=&quot;500&quot;<br/>     height=&quot;250&quot;<br/>     divId=&quot;f2a24b61&quot;&gt;<br/>    &lt;/istsos-chart&gt;<br/>&lt;/div&gt;
+                </pre>            
+            </div>
+        </div>        
+        <!-- /.row -->
+
+        <hr>
+        
+        <!-- Project Two -->
+        <div class="row">
+            <a name="multi-variable"><h3>Multi-variable chart</h3></a>
+            <div class="col-md-7">
+                <iframe height="360" width="820" frameBorder="0" src="http://131.175.143.71/vistsos/test/multivariable-test.html"></iframe>
+            </div>
+        </div> 
+        <div class="row">            
+            <div class="col-md-5">                
+                <h4>Code</h4>
+                <pre class="prettyprint">&lt;div id=&quot;f2a24b63&quot;&gt;<br/>    &lt;istsos-chart type=&quot;multivariable&quot;<br/>     server=&quot;http://istsos.org/istsos&quot;<br/>     service=&quot;demo&quot;<br/>     offering=&quot;BELLINZONA&quot;<br/>     procedures=&quot;BELLINZONA&quot;<br/>     property=&quot;air-temperature,air-relative-humidity&quot;<br/>     from=&quot;2014-05-07T00:00&quot;<br/>     until=&quot;2014-05-07T10:00&quot;<br/>     width=&quot;500&quot;<br/>     height=&quot;250&quot;<br/>     divId=&quot;f2a24b63&quot;&gt;<br/>    &lt;/istsos-chart&gt;<br/>&lt;/div&gt;
+                </pre>            
+            </div>
+        </div>        
+        <!-- /.row -->
+
+        <hr>
+
+        <!-- Project Three -->
+        <div class="row">
+            <a name="overview-detail"><h3>Overview-detail chart</h3></a>
+            <div class="col-md-7">
+                <iframe height="600" width="970" frameBorder="0" src="http://131.175.143.71/vistsos/test/overview-detail-test.html"></iframe>
+            </div>
+        </div>         
+        <div class="row">            
+            <div class="col-md-5">                
+                <h4>Code</h4>
+                <pre class="prettyprint">&lt;div id=&quot;f2a24b64&quot;&gt;<br/>    &lt;istsos-chart type=&quot;overview-detail&quot;<br/>     server=&quot;http://istsos.org/istsos&quot;<br/>     service=&quot;demo&quot;<br/>     offering=&quot;BELLINZONA&quot;<br/>     procedures=&quot;BELLINZONA&quot;<br/>     property=&quot;air-temperature&quot;<br/>     from=&quot;2014-05-07T00:00&quot;<br/>     until=&quot;2014-05-15T23:00&quot;<br/>     width=&quot;700&quot;<br/>     height=&quot;250&quot;<br/>     divId=&quot;f2a24b64&quot;&gt;<br/>    &lt;/istsos-chart&gt;<br/>&lt;/div&gt;
+                </pre>            
+            </div>
+        </div>        
+        <!-- /.row -->
+
+        <hr>
+
+        <!-- Project Four -->
+        <div class="row">
+            <a name="single-bar-histogram"><h3>Single bar histogram chart</h3></a>
+            <div class="col-md-7">
+                <iframe height="400" width="800" frameBorder="0" src="http://131.175.143.71/vistsos/test/single-bar-histogram-test.html"></iframe>
+            </div>
+        </div>         
+        <div class="row">            
+            <div class="col-md-5">                
+                <h4>Code</h4>
+                <pre class="prettyprint">&lt;div id=&quot;f2a24b65&quot;&gt;<br/>    &lt;istsos-chart type=&quot;histogram&quot;<br/>     server=&quot;http://istsos.org/istsos&quot;<br/>     service=&quot;demo&quot;<br/>     offering=&quot;BELLINZONA&quot;<br/>     procedures=&quot;BELLINZONA&quot;<br/>     property=&quot;air-temperature&quot;<br/>     from=&quot;2014-04-01T00:46:00&quot;<br/>     until=&quot;2014-05-07T23:46:00&quot;<br/>     aggregateInterval=&quot;PT12H&quot;<br/>     aggregateFunction=&quot;AVG&quot;<br/>     width=&quot;550&quot;<br/>     height=&quot;250&quot;<br/>     color=&quot;#00A800&quot;<br/>     color2=&quot;black&quot;<br/>     divId=&quot;f2a24b65&quot;&gt;<br/>    &lt;/istsos-chart&gt;<br/>&lt;/div&gt;
+                </pre>            
+            </div>
+        </div>        
+        <!-- /.row -->
+
+        <hr>
+
+        <!-- Project Five -->
+        <div class="row">
+            <a name="multiple-bar-histogram"><h3>Multiple bar histogram chart</h3></a>
+            <div class="col-md-7">
+                <iframe height="400" width="800" frameBorder="0" src="http://131.175.143.71/vistsos/test/multiple-bar-histogram-test.html"></iframe>
+            </div>
+        </div>         
+        <div class="row">            
+            <div class="col-md-5">                
+                <h4>Code</h4>
+                <pre class="prettyprint">&lt;div id=&quot;f2a24b62&quot;&gt;<br/>    &lt;istsos-chart type=&quot;histogram&quot;<br/>     server=&quot;http://istsos.org/istsos&quot;<br/>     service=&quot;demo&quot;<br/>     offering=&quot;temporary&quot;<br/>     procedures=&quot;BELLINZONA,GRABOW&quot;<br/>     property=&quot;air-temperature&quot;<br/>     from=&quot;2014-05-04T00:00&quot;<br/>     until=&quot;2014-05-05T23:00&quot;<br/>     aggregateInterval=&quot;PT12H&quot;<br/>     aggregateFunction=&quot;AVG&quot;<br/>     width=&quot;550&quot;<br/>     height=&quot;250&quot;<br/>     divId=&quot;f2a24b62&quot;&gt;<br/>    &lt;/istsos-chart&gt;<br/>&lt;/div&gt;
+                </pre>            
+            </div>
+        </div>        
+        <!-- /.row -->
+
+        <hr>
+
+        <!-- Pagination -->
+        <!--<div class="row text-center">
+            <div class="col-lg-12">
+                <ul class="pagination">
+                    <li>
+                        <a href="#">&laquo;</a>
+                    </li>
+                    <li class="active">
+                        <a href="#">1</a>
+                    </li>
+                    <li>
+                        <a href="#">2</a>
+                    </li>
+                    <li>
+                        <a href="#">3</a>
+                    </li>
+                    <li>
+                        <a href="#">4</a>
+                    </li>
+                    <li>
+                        <a href="#">5</a>
+                    </li>
+                    <li>
+                        <a href="#">&raquo;</a>
+                    </li>
+                </ul>
+            </div>
+        </div>-->
+        <!-- /.row -->
+
+        <hr>
+
+        <!-- Footer -->
+        <footer>
+            <div class="row">
+                <div class="col-lg-12">
+                    <p>istSOS 2016</p>
+                </div>
+            </div>
+            <!-- /.row -->
+        </footer>
+
+    </div>
+    <!-- /.container -->
+
+    <!-- jQuery -->
+    <script src="js/jquery.js"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="js/bootstrap.min.js"></script>
+
+</body>
+
+</html>
