@@ -77,12 +77,13 @@
           var color = this.getAttribute("color") || "#0072BB";
           var color2 = this.getAttribute("color2") || "#FF4C3B";
           var strokeWidth = parseInt(this.getAttribute("strokeWidth")) || 1;
+          var cumulativePeriod = this.getAttribute("cumulativePeriod") || "day";
 
           var aggregateInterval = "noAggregation";
           var aggregateFunction = "noAggregation";
           if (chartType === "histogram") {
             aggregateInterval = this.getAttribute("aggregateInterval") || "P1W";
-            aggregateFunction = this.getAttribute("aggregateFunction") || "avg";
+            aggregateFunction = this.getAttribute("aggregateFunction") || "AVG";
           }
 
           var divId = this.getAttribute("divId");
@@ -91,6 +92,11 @@
             // Get observations with the set of mandatory parameters using the script called data-provider.
             // The callback function loadSpec is passed as a parameter in order to execute the chart specification loading
             // after the successful execution of the function getObservations.
+
+            if (chartType === "cumulative-histogram") {
+              aggregateInterval = "PT1H";
+              aggregateFunction = "AVG";
+            }
             getObservations(server, service, offering, procedures, props, from, until, aggregateInterval, aggregateFunction, loadSpec);
           }
 
@@ -98,7 +104,7 @@
             measurements = data;
             uoms = units;
         
-            if (chartType == "histogram") {
+            if (chartType === "histogram") {
               if (procedures.length > 1) {
                 chartType = "multiple-bar-histogram";
                 getJSONSpec("default-multiple-bar-histogram-spec", embedChart);
@@ -106,17 +112,19 @@
                 chartType = "single-bar-histogram";
                 getJSONSpec("default-single-bar-histogram-spec", embedChart);
               }
-            } else if (chartType == "overview-detail") {
+            } else if (chartType === "cumulative-histogram") {
+              getJSONSpec("default-cumulative-histogram-spec", embedChart); 
+            } else if (chartType === "overview-detail") {
               getJSONSpec("default-overview-detail-spec", embedChart);
-            } else if (chartType == "multivariable") {
+            } else if (chartType === "multivariable") {
               getJSONSpec("default-multivariable-spec", embedChart);
-            } else if (chartType == "line") {
+            } else if (chartType === "line") {
               getJSONSpec("default-line-spec", embedChart);
             }
           }
 
           function embedChart(jsonSpec) { 
-            if (chartType == "overview-detail") {
+            if (chartType === "overview-detail") {
               // Asigning data to chart specification.
               jsonSpec.data[0].values = measurements;
   
@@ -157,7 +165,7 @@
               // Overview section configuration.
               jsonSpec.marks[1].marks[0].properties.update.y.field = property;
 
-            } else if (chartType == "multivariable") {
+            } else if (chartType === "multivariable") {
               // Asigning data to chart specification.
               jsonSpec.data[0].values = measurements;
    
@@ -192,7 +200,7 @@
               jsonSpec.marks[0].marks[2].marks[0].properties.update.text.signal = "tooltip." + property1;
               jsonSpec.marks[0].marks[2].marks[1].properties.update.text.signal = "tooltip." + property2;
             
-            } else if (chartType == "line") {
+            } else if (chartType === "line") {
 
               // Asigning data to chart specification.
               jsonSpec.data[0].values = measurements;
@@ -219,7 +227,7 @@
               jsonSpec.marks[0].marks[2].marks[0].properties.update.text.signal = "tooltip." + property;
 
 
-            } else if (chartType == "single-bar-histogram") {            
+            } else if (chartType === "single-bar-histogram") {            
               // Asigning data to chart specification.
               jsonSpec.data[0].values = measurements;
 
@@ -242,7 +250,7 @@
               // Configuration of color for bar and for hover effect.
               jsonSpec.marks[0].properties.update.fill[1].value = color;
               jsonSpec.marks[0].properties.update.fill[0].value = color2;
-            } else if (chartType == "multiple-bar-histogram") {
+            } else if (chartType === "multiple-bar-histogram") {
               // Asigning data to chart specification.
               jsonSpec.data[0].values = measurements;
 
@@ -261,6 +269,31 @@
  
               jsonSpec.axes[0].title = "Time interval " + aggregateInterval;
               jsonSpec.axes[1].title =  property + "(" + uoms[property] + ")" + " - " + aggregateFunction; 
+            } else if (chartType === "cumulative-histogram") {
+              // Asigning data to chart specification.
+              jsonSpec.data[0].values = measurements;
+
+              // Initializing size of the chart
+              jsonSpec["height"] = height;
+              jsonSpec["width"] = width;
+            
+              var periodExpr = "year(datum.Time) + \"-\"+ (month(datum.Time) + 1) + \"-\" + date(datum.Time)";
+              var ytitle = "Number of hours per day";
+
+              if (cumulativePeriod === "month") {
+                periodExpr = "year(datum.Time) + \"-\"+ (month(datum.Time) + 1)";
+                ytitle = "Number of hours per month";
+              } else if (cumulativePeriod === "year") {
+                periodExpr = "year(datum.Time)";
+                ytitle = "Number of hours per year";
+              }
+
+              jsonSpec.data[0].transform[0].expr = periodExpr;
+      
+              jsonSpec.axes[1].title = ytitle;
+ 
+              // Observed property passed as parameter by the user.
+              var property = props[0];
             }
           
             var embedSpec = { mode: vegaMode, spec: jsonSpec };
