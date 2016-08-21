@@ -11,7 +11,7 @@
   ],
   "data": [
     {
-      "name": "measurements",
+      "name": "observations",
       "values": [],
       "format": {"type": "json","parse": {"Time": "date"}},
       "transform": [
@@ -28,19 +28,19 @@
       "name": "x",
       "type": "time",
       "range": "width",
-      "domain": {"data": "measurements","field": "Time"}
+      "domain": {"data": "observations","field": "Time"}
     },
     {
       "name": "y",
       "type": "linear",
       "range": "height",
-      "domain": {"data": "measurements","field": "temperature"},
+      "domain": {"data": "observations","field": "temperature"},
       "nice": true
     },
     {
       "name": "color",
       "type": "ordinal",
-      "domain": {"data": "measurements","field": "symbol"},
+      "domain": {"data": "observations","field": "symbol"},
       "range": "category10"
     }
   ],
@@ -73,7 +73,7 @@
     {
       "type": "group",
       "from": {
-        "data": "measurements",
+        "data": "observations",
         "transform": [{"type": "facet","groupby": ["symbol"]}]
       },
       "marks": [
@@ -91,7 +91,7 @@
         },
         {
           "type": "symbol",
-          "from": {"data": "measurements"},
+          "from": {"data": "observations"},
           "properties": {
             "enter": {
               "x": {"scale": "x","field": "Time"},

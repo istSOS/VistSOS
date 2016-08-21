@@ -42,7 +42,7 @@
   ],
   "data": [
     {
-      "name": "measurements",
+      "name": "observations",
       "values": [],
       "format": {"type": "json","parse": {"Time": "date"}},
       "transform": [
@@ -59,14 +59,14 @@
       "name": "xOverview",
       "type": "time",
       "range": [0,720],
-      "domain": {"data": "measurements","field": "Time"}
+      "domain": {"data": "observations","field": "Time"}
     },
     {
       "name": "yOverview",
       "type": "linear",
       "range": [70,0],
       "nice": true,
-      "domain": {"data": "measurements","field": "temperature"}
+      "domain": {"data": "observations","field": "temperature"}
     },
     {
       "name": "xDetail",
@@ -80,12 +80,12 @@
       "type": "linear",
       "range": [390,0],
       "nice": true,
-      "domain": {"data": "measurements","field": "temperature"}
+      "domain": {"data": "observations","field": "temperature"}
     },
     {
       "name": "color",
       "type": "ordinal",
-      "domain": {"data": "measurements","field": "symbol"},
+      "domain": {"data": "observations","field": "symbol"},
       "range": "category10"
     }
   ],
@@ -118,7 +118,7 @@
           "marks": [
             {
               "type": "line",
-              "from": {"data": "measurements"},
+              "from": {"data": "observations"},
               "properties": {
                 "enter": {
                   "interpolate": {"value": "monotone"},
@@ -142,7 +142,7 @@
             },
             {
               "type": "symbol",
-              "from": {"data": "measurements"},
+              "from": {"data": "observations"},
               "properties": {
                 "enter": {
                   "x": {"scale": "xDetail","field": "Time"},
@@ -254,7 +254,7 @@
       "marks": [
         {
           "type": "line",
-          "from": {"data": "measurements"},
+          "from": {"data": "observations"},
           "properties": {
             "update": {
               "x": {"scale": "xOverview","field": "Time"},

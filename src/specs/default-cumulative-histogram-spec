@@ -72,7 +72,7 @@
     {
       "name": "color",
       "type": "ordinal",
-      "range": ["#c7e9c0","#a1d99b","#74c476","#31a354","#fdd0a2","#fdae6b","#fd8d3c","#e6550d"],
+      "range": ["#C7E9C0", "#7CC68A", "#31A354", "#8BB431", "#E6C60E", "#E8A111", "#EB7D15", "#EC6A19", "#ED581D", "#F50E0E"],
       "domain": {"data": "observations","field": "category"}
     }
   ],
@@ -130,25 +130,68 @@
       }
     },
     {
-      "type": "text",
+      "type": "group",
+      "from": {"data": "tooltip"},
       "properties": {
-        "enter": {
-          "align": {"value": "center"},
-          "fill": {"value": "#111"}
-        },
         "update": {
-          "x": {"scale": "x","signal": "tooltip.period",
-            "offset": 0},
-          "dx": {"scale": "x","band": true,"mult": 0.5},
-          "y": {
-            "scale": "y",
-            "signal": "tooltip.count_category",
+          "x": {
+            "scale": "x",
+            "signal": "tooltip.period",
             "offset": -5
           },
-          "text": {"signal": "tooltip.count_category"},
-          "fillOpacity": [{"test": "!tooltip._id","value": 0},{"value": 1}]
+          "y": {"scale": "y","offset": 10},
+          "width": {"value": 60},
+          "height": {"value": 35},
+          "fill": [
+            {
+              "test": "tooltip.period!=datum.period",
+              "value": "#fff"
+            },
+            {"value": "#fff"}
+          ],
+          "fillOpacity": [
+            {
+              "test": "tooltip.period!=datum.period",
+              "value": 0.85
+            },
+            {"value": 0}
+          ],
+          "stroke": {"value": "#aaa"},
+          "strokeWidth": [
+            {
+              "test": "tooltip.period!=datum.period",
+              "value": 0.5
+            },
+            {"value": 0}
+          ]
         }
-      }
+      },
+      "marks": [
+        {
+          "type": "text",
+          "properties": {
+            "update": {
+              "x": {"value": 6},
+              "y": {"value": 14},
+              "text": {"signal": "tooltip.count_category"},
+              "fill": {"value": "black"},
+              "fontWeight": {"value": "bold"}
+            }
+          }
+        },
+        {
+          "type": "text",
+          "properties": {
+            "update": {
+              "x": {"value": 6},
+              "y": {"value": 29},
+              "text": {"signal": "tooltip.period"},
+              "fill": {"value": "black"},
+              "align": {"value": "left"}
+            }
+          }
+        }
+      ]
     }
   ]
 }

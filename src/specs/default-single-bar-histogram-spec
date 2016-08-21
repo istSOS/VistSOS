@@ -11,7 +11,7 @@
   ],
   "data": [
     {
-      "name": "data",
+      "name": "observations",
       "values": [],
       "transform": [
         {
@@ -37,20 +37,20 @@
       "name": "x",
       "type": "ordinal",
       "range": "width",
-      "domain": {"data": "data","field": "Time"},
+      "domain": {"data": "observations","field": "Time"},
       "padding": 0.2
     },
     {
       "name": "y",
       "type": "linear",
       "range": "height",
-      "domain": {"data": "data","field": "aggregated"},
+      "domain": {"data": "observations","field": "aggregated"},
       "nice": true
     },
     {
       "name": "color",
       "type": "ordinal",
-      "domain": {"data": "data","field": "symbol"},
+      "domain": {"data": "observations","field": "symbol"},
       "range": ["#0072BB"]
     }
   ],
@@ -87,7 +87,7 @@
   "marks": [
     {
       "type": "rect",
-      "from": {"data": "data"},
+      "from": {"data": "observations"},
       "properties": {
         "enter": {
           "x": {"scale": "x","field": "Time"},
