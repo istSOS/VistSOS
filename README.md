@@ -4,6 +4,6 @@ The VistSOS data visualization tool allow users to configure and customize stati
 
 For more information about this project:
 
-* [GitHub wiki](https://github.com/felipe07/VistSOS-1/wiki)
+* [GitHub wiki](https://github.com/istSOS/VistSOS/wiki)
 * [OSGeo wiki](https://wiki.osgeo.org/wiki/VistSOS_Data_Visualization_Framework)
 
