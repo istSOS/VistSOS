@@ -31,7 +31,7 @@
        
       proto.attachedCallback = function() {
         var jsonSpec = {};
-        var measurements = [];
+        var observations = [];
         var uoms = new Object();
         var vegaMode = "vega";
 
@@ -101,7 +101,7 @@
           }
 
           function loadSpec(data, units) {
-            measurements = data;
+            observations = data;
             uoms = units;
         
             if (chartType === "histogram") {
@@ -126,7 +126,7 @@
           function embedChart(jsonSpec) { 
             if (chartType === "overview-detail") {
               // Asigning data to chart specification.
-              jsonSpec.data[0].values = measurements;
+              jsonSpec.data[0].values = observations;
   
               // Initializing size of the chart
               jsonSpec["height"] = height;
@@ -167,7 +167,7 @@
 
             } else if (chartType === "multivariable") {
               // Asigning data to chart specification.
-              jsonSpec.data[0].values = measurements;
+              jsonSpec.data[0].values = observations;
    
               // Initializing size of the chart
               jsonSpec["height"] = height;
@@ -203,7 +203,7 @@
             } else if (chartType === "line") {
 
               // Asigning data to chart specification.
-              jsonSpec.data[0].values = measurements;
+              jsonSpec.data[0].values = observations;
    
               // Initializing size of the chart
               jsonSpec["height"] = height;
@@ -229,7 +229,7 @@
 
             } else if (chartType === "single-bar-histogram") {            
               // Asigning data to chart specification.
-              jsonSpec.data[0].values = measurements;
+              jsonSpec.data[0].values = observations;
 
               // Initializing size of the chart
               jsonSpec["height"] = height;
@@ -252,7 +252,7 @@
               jsonSpec.marks[0].properties.update.fill[0].value = color2;
             } else if (chartType === "multiple-bar-histogram") {
               // Asigning data to chart specification.
-              jsonSpec.data[0].values = measurements;
+              jsonSpec.data[0].values = observations;
 
               // Initializing size of the chart
               jsonSpec["height"] = height;
@@ -270,9 +270,22 @@
               jsonSpec.axes[0].title = "Time interval " + aggregateInterval;
               jsonSpec.axes[1].title =  property + "(" + uoms[property] + ")" + " - " + aggregateFunction; 
             } else if (chartType === "cumulative-histogram") {
+			  // Observed property passed as parameter by the user.
+              var property = props[0];
+			  			  
               // Asigning data to chart specification.
-              jsonSpec.data[0].values = measurements;
+              jsonSpec.data[0].values = observations;
 
+			  // Categories are modified according to the type of observed property. 
+			  // The histogram cumulative chart specification contains the expression to categorize air-temperature, which is considered default.
+			  if (property === "air-rainfall") {
+			    var expr = "(datum['air-rainfall'] < 0.25 ? \"< 0.25 mm\" : datum['air-rainfall'] <= 1.0 && datum['air-rainfall'] > 0.25 ? \"0.25 - 1.0 mm\" : datum['air-rainfall'] <= 4.0 && datum['air-rainfall'] > 1.0 ? \"1.0 - 4.0 mm\" : datum['air-rainfall'] <= 16.0 && datum['air-rainfall'] > 4.0 ? \"4.0 - 16.0 mm\" : datum['air-rainfall'] <= 50.0 && datum['air-rainfall'] > 16.0 ? \"16.0 - 50.0 mm\" : \"> 50.0 mm\")";
+				jsonSpec.data[0].transform[1].expr = expr;
+			  } else if (property === "air-relative-humidity") {
+			    var expr = "(datum['air-relative-humidity'] < 0 ? \"< 0 %\" : datum['air-relative-humidity'] <= 10.0 && datum['air-relative-humidity'] > 0.0 ? \"0 - 10 %\" : datum['air-relative-humidity'] <= 20.0 && datum['air-relative-humidity'] > 10.0 ? \"10 - 20 %\" : datum['air-relative-humidity'] <= 30.0 && datum['air-relative-humidity'] > 20.0 ? \"20 - 30 %\" : datum['air-relative-humidity'] <= 40.0 && datum['air-relative-humidity'] > 30.0 ? \"30 - 40 %\" : datum['air-relative-humidity'] <= 50.0 && datum['air-relative-humidity'] > 40.0 ? \"40 - 50 %\" : datum['air-relative-humidity'] <= 60.0 && datum['air-relative-humidity'] > 50.0 ? \"50 - 60 %\" : datum['air-relative-humidity'] <= 70.0 && datum['air-relative-humidity'] > 60.0 ? \"60 - 70 %\" : datum['air-relative-humidity'] <= 80.0 && datum['air-relative-humidity'] > 70.0 ? \"70 - 80 %\" : datum['air-relative-humidity'] <= 90.0 && datum['air-relative-humidity'] > 80.0 ? \"80 - 90 %\" : datum['air-relative-humidity'] <= 100.0 && datum['air-relative-humidity'] > 90.0 ? \"90 - 100 %\" : \"> 100 %\")";
+				jsonSpec.data[0].transform[1].expr = expr;
+			  } 			  			 
+			  
               // Initializing size of the chart
               jsonSpec["height"] = height;
               jsonSpec["width"] = width;
@@ -290,10 +303,7 @@
 
               jsonSpec.data[0].transform[0].expr = periodExpr;
       
-              jsonSpec.axes[1].title = ytitle;
- 
-              // Observed property passed as parameter by the user.
-              var property = props[0];
+              jsonSpec.axes[1].title = ytitle;			  
             }
           
             var embedSpec = { mode: vegaMode, spec: jsonSpec };
