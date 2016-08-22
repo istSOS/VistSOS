@@ -290,6 +290,8 @@
               jsonSpec["height"] = height;
               jsonSpec["width"] = width;
             
+			  jsonSpec.legends[0].title = property;
+			
               var periodExpr = "year(datum.Time) + \"-\"+ (month(datum.Time) + 1) + \"-\" + date(datum.Time)";
               var ytitle = "Number of hours per day";
 

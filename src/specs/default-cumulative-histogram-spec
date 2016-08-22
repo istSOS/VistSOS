@@ -99,6 +99,7 @@
   ],
   "legends": [
     {
+	  "title": "",
       "fill": "color",
       "properties": {"symbols": {"shape": {"value": "square"}}}
     }
