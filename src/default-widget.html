@@ -1,0 +1,320 @@
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>istSOS Chart Component</title>
+    <!-- <script src="../bower_components/webcomponentsjs/webcomponents.min.js"></script> -->
+    <script src="../bower_components/javascript-core/compiled/istsos-core-2.1.js"></script>
+    <script src="//d3js.org./d3.v3.min.js"></script>
+    <script src="//vega.github.io/vega/vega.js"></script>
+    <script src="//vega.github.io/vega-lite/vega-lite.js"></script>
+    <script src="//vega.github.io/vega-editor/vendor/vega-embed.js"></script>
+    <script src="https://code.jquery.com/jquery-1.11.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.13.0/moment.min.js"></script> 
+    <script src="data/data-provider.js"></script> 
+    <script src="util/util.js"></script>
+    <style>
+      .tooltip {
+        width: 100%;
+        display: block;
+      }
+      .vega-actions a {
+        margin-right: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <script>        
+      $.ajaxSetup({ async: true });
+
+      // Define and register HTML element <istsos-chart>
+      var proto = Object.create(HTMLElement.prototype);
+       
+      proto.attachedCallback = function() {
+        var jsonSpec = {};
+        var observations = [];
+        var uoms = new Object();
+        var vegaMode = "vega";
+
+        // Mandatory parameters
+        var server = this.getAttribute("server");
+        var service = this.getAttribute("service");
+        var offering = this.getAttribute("offering");
+        
+        // Validation of mandatory parameter properties.
+        var procedures = null;
+        try {
+          procedures = this.getAttribute("procedures").replace(/ /g, "").split(",");
+          if (procedures.indexOf("") > -1) { 
+            procedures = null;
+            throw new Error("Empty strings are not allowed as procedure names."); 
+          }
+        } catch(e) {
+          console.log(e);
+        }
+
+        // Validation of mandatory parameter properties.
+        var props = null;
+        try {
+          props = this.getAttribute("property").toLowerCase().replace(/ /g, "").split(",");
+          if (props.indexOf("") > -1) { 
+            props = null;
+            throw new Error("Empty strings are not allowed as observed property values."); 
+          }
+        } catch(e) {
+          console.log(e);
+        }
+        var from = this.getAttribute("from");
+        var until = this.getAttribute("until");
+
+        // If mandatory parameters are not present, don't execute chart generation
+        if (server == null || service == null || offering == null || procedures == null || props == null || from == null || until == null) {
+          console.log("Please specify all the mandatory parameters.")
+        } else {
+          // Instantiating not mandatory parameters with default values.
+          var chartType = this.getAttribute("type") || "line";
+          var height = parseInt(this.getAttribute("height")) || 250;
+          var width = parseInt(this.getAttribute("width")) || 500;
+          var color = this.getAttribute("color") || "#0072BB";
+          var color2 = this.getAttribute("color2") || "#FF4C3B";
+          var strokeWidth = parseInt(this.getAttribute("strokeWidth")) || 1;
+          var cumulativePeriod = this.getAttribute("cumulativePeriod") || "day";
+
+          var aggregateInterval = "noAggregation";
+          var aggregateFunction = "noAggregation";
+          if (chartType === "histogram") {
+            aggregateInterval = this.getAttribute("aggregateInterval") || "P1W";
+            aggregateFunction = this.getAttribute("aggregateFunction") || "AVG";
+          }
+
+          var divId = this.getAttribute("divId");
+
+          if (moment.utc(from).isValid() && moment.utc(until).isValid()) {
+            // Get observations with the set of mandatory parameters using the script called data-provider.
+            // The callback function loadSpec is passed as a parameter in order to execute the chart specification loading
+            // after the successful execution of the function getObservations.
+
+            if (chartType === "cumulative-histogram") {
+              aggregateInterval = "PT1H";
+              aggregateFunction = "AVG";
+            }
+            getObservations(server, service, offering, procedures, props, from, until, aggregateInterval, aggregateFunction, loadSpec);
+          }
+
+          function loadSpec(data, units) {
+            observations = data;
+            uoms = units;
+        
+            if (chartType === "histogram") {
+              if (procedures.length > 1) {
+                chartType = "multiple-bar-histogram";
+                getJSONSpec("default-multiple-bar-histogram-spec", embedChart);
+              } else {
+                chartType = "single-bar-histogram";
+                getJSONSpec("default-single-bar-histogram-spec", embedChart);
+              }
+            } else if (chartType === "cumulative-histogram") {
+              getJSONSpec("default-cumulative-histogram-spec", embedChart); 
+            } else if (chartType === "overview-detail") {
+              getJSONSpec("default-overview-detail-spec", embedChart);
+            } else if (chartType === "multivariable") {
+              getJSONSpec("default-multivariable-spec", embedChart);
+            } else if (chartType === "line") {
+              getJSONSpec("default-line-spec", embedChart);
+            }
+          }
+
+          function embedChart(jsonSpec) { 
+            if (chartType === "overview-detail") {
+              // Asigning data to chart specification.
+              jsonSpec.data[0].values = observations;
+  
+              // Initializing size of the chart
+              jsonSpec["height"] = height;
+              jsonSpec["width"] = width;
+
+              // Defining min and max dates for x axis.
+              var sfrom = moment(from).format("YYYY-MM-DD");
+              var suntil = moment(until).format("YYYY-MM-DD");
+              
+              // Modification of signals configuration according to min and max dates for x axis.
+              jsonSpec.signals[2].init.expr = "datetime('" + sfrom + "')";
+              jsonSpec.signals[3].init.expr = "datetime('" + sfrom + "')";
+              jsonSpec.signals[3].expr = "time(brush_start) === time(brush_end) ? datetime('" + sfrom + "') : min(brush_start, brush_end)";
+              jsonSpec.signals[4].init.expr = "datetime('" + suntil + "')";
+              jsonSpec.signals[4].expr = "time(brush_start) === time(brush_end) ? datetime('" + suntil + "') : max(brush_start, brush_end)";
+
+              var property = props[0];
+              
+              // Modifying scales configuration with observed properties.
+              jsonSpec.scales[1].domain.field = property;
+              jsonSpec.scales[3].domain.field = property;
+
+              // Initializing axes titles.
+              jsonSpec.marks[0].axes[1].title = property + "(" + uoms[property] + ")";
+
+              // Modification of marks configuration //
+              // Line configuration.
+              jsonSpec.marks[0].marks[0].marks[0].properties.enter.y.field = property;
+              jsonSpec.marks[0].marks[0].marks[0].properties.update.y.field = property;
+              // Symbol (circle mark) configuration.
+              jsonSpec.marks[0].marks[0].marks[1].properties.enter.y.field = property;
+              jsonSpec.marks[0].marks[0].marks[1].properties.update.y.field = property;
+              // Tooltip configuration.
+              jsonSpec.marks[0].marks[0].marks[2].properties.update.y.signal = "tooltip." + property;
+              jsonSpec.marks[0].marks[0].marks[2].marks[0].properties.update.text.signal = "tooltip." + property;
+              // Overview section configuration.
+              jsonSpec.marks[1].marks[0].properties.update.y.field = property;
+
+            } else if (chartType === "multivariable") {
+              // Asigning data to chart specification.
+              jsonSpec.data[0].values = observations;
+   
+              // Initializing size of the chart
+              jsonSpec["height"] = height;
+              jsonSpec["width"] = width;
+
+              var property1 = props[0];
+              var property2 = props[1];
+              
+              // Initializing format of observed properties.
+              jsonSpec.data[0].format.parse[property1] = "number";
+              jsonSpec.data[0].format.parse[property2] = "number";
+              
+              // Modifying scales configuration with observed properties.
+              jsonSpec.scales[2].domain.field = property1;
+              jsonSpec.scales[3].domain.field = property2;
+
+              // Initializing axes titles.
+              jsonSpec.axes[1].title = property1 + "(" + uoms[property1] + ")";
+              jsonSpec.axes[2].title = property2 + "(" + uoms[property2] + ")";
+
+              // Modification of marks configuration //
+              // Line configuration.
+              jsonSpec.marks[0].marks[0].properties.enter.y.field = property1;
+              jsonSpec.marks[0].marks[0].properties.enter.y2.field = property2;
+              // Symbol (circle mark) configuration.
+              jsonSpec.marks[0].marks[1].properties.enter.y.field = property1;
+              jsonSpec.marks[0].marks[1].properties.enter.y2.field = property2;
+              // Tooltip configuration.
+              jsonSpec.marks[0].marks[2].properties.update.y.signal = "tooltip." + property1;
+              jsonSpec.marks[0].marks[2].marks[0].properties.update.text.signal = "tooltip." + property1;
+              jsonSpec.marks[0].marks[2].marks[1].properties.update.text.signal = "tooltip." + property2;
+            
+            } else if (chartType === "line") {
+
+              // Asigning data to chart specification.
+              jsonSpec.data[0].values = observations;
+   
+              // Initializing size of the chart
+              jsonSpec["height"] = height;
+              jsonSpec["width"] = width;
+
+              var property = props[0];
+             
+               // Modifying scales configuration with observed properties.
+              jsonSpec.scales[1].domain.field = property;
+
+              // Initializing axes titles.
+              jsonSpec.axes[1].title = property + "(" + uoms[property] + ")";
+
+              // Modification of marks configuration //
+              // Line configuration.
+              jsonSpec.marks[0].marks[0].properties.enter.y.field = property;
+              // Symbol (circle mark) configuration.
+              jsonSpec.marks[0].marks[1].properties.enter.y.field = property;
+              // Tooltip configuration.
+              jsonSpec.marks[0].marks[2].properties.update.y.signal = "tooltip." + property;
+              jsonSpec.marks[0].marks[2].marks[0].properties.update.text.signal = "tooltip." + property;
+
+
+            } else if (chartType === "single-bar-histogram") {            
+              // Asigning data to chart specification.
+              jsonSpec.data[0].values = observations;
+
+              // Initializing size of the chart
+              jsonSpec["height"] = height;
+              jsonSpec["width"] = width;
+             
+              // Observed property passed as parameter by the user.
+              var property = props[0];
+              
+              // In the json chart specification the value of expr is a formula to round the measurement to 2 decimal digits.
+              jsonSpec.data[0].transform[0].expr = "round(datum['" + property + "'] * 100) / 100";
+            
+              // Legend color.
+              jsonSpec.scales[2].range = [color];
+
+              jsonSpec.axes[0].title = "Time interval " + aggregateInterval;
+              jsonSpec.axes[1].title = property + "(" + uoms[property] + ")" + " - " + aggregateFunction;
+              
+              // Configuration of color for bar and for hover effect.
+              jsonSpec.marks[0].properties.update.fill[1].value = color;
+              jsonSpec.marks[0].properties.update.fill[0].value = color2;
+            } else if (chartType === "multiple-bar-histogram") {
+              // Asigning data to chart specification.
+              jsonSpec.data[0].values = observations;
+
+              // Initializing size of the chart
+              jsonSpec["height"] = height;
+              jsonSpec["width"] = width;
+
+              // Create array containing the name of the fields used for the group by operation.
+              var groupby = ["symbol", aggregateInterval];
+              
+              // Observed property passed as parameter by the user.
+              var property = props[0];
+ 
+              // In the json chart specification the value of expr is a formula to round the measurement to 2 decimal digits.
+              jsonSpec.data[0].transform[0].expr = "round(datum['" + property + "'] * 100) / 100";
+ 
+              jsonSpec.axes[0].title = "Time interval " + aggregateInterval;
+              jsonSpec.axes[1].title =  property + "(" + uoms[property] + ")" + " - " + aggregateFunction; 
+            } else if (chartType === "cumulative-histogram") {
+			  // Observed property passed as parameter by the user.
+              var property = props[0];
+			  			  
+              // Asigning data to chart specification.
+              jsonSpec.data[0].values = observations;
+
+			  // Categories are modified according to the type of observed property. 
+			  // The histogram cumulative chart specification contains the expression to categorize air-temperature, which is considered default.
+			  if (property === "air-rainfall") {
+			    var expr = "(datum['air-rainfall'] < 0.25 ? \"< 0.25 mm\" : datum['air-rainfall'] <= 1.0 && datum['air-rainfall'] > 0.25 ? \"0.25 - 1.0 mm\" : datum['air-rainfall'] <= 4.0 && datum['air-rainfall'] > 1.0 ? \"1.0 - 4.0 mm\" : datum['air-rainfall'] <= 16.0 && datum['air-rainfall'] > 4.0 ? \"4.0 - 16.0 mm\" : datum['air-rainfall'] <= 50.0 && datum['air-rainfall'] > 16.0 ? \"16.0 - 50.0 mm\" : \"> 50.0 mm\")";
+				jsonSpec.data[0].transform[1].expr = expr;
+			  } else if (property === "air-relative-humidity") {
+			    var expr = "(datum['air-relative-humidity'] < 0 ? \"< 0 %\" : datum['air-relative-humidity'] <= 10.0 && datum['air-relative-humidity'] > 0.0 ? \"0 - 10 %\" : datum['air-relative-humidity'] <= 20.0 && datum['air-relative-humidity'] > 10.0 ? \"10 - 20 %\" : datum['air-relative-humidity'] <= 30.0 && datum['air-relative-humidity'] > 20.0 ? \"20 - 30 %\" : datum['air-relative-humidity'] <= 40.0 && datum['air-relative-humidity'] > 30.0 ? \"30 - 40 %\" : datum['air-relative-humidity'] <= 50.0 && datum['air-relative-humidity'] > 40.0 ? \"40 - 50 %\" : datum['air-relative-humidity'] <= 60.0 && datum['air-relative-humidity'] > 50.0 ? \"50 - 60 %\" : datum['air-relative-humidity'] <= 70.0 && datum['air-relative-humidity'] > 60.0 ? \"60 - 70 %\" : datum['air-relative-humidity'] <= 80.0 && datum['air-relative-humidity'] > 70.0 ? \"70 - 80 %\" : datum['air-relative-humidity'] <= 90.0 && datum['air-relative-humidity'] > 80.0 ? \"80 - 90 %\" : datum['air-relative-humidity'] <= 100.0 && datum['air-relative-humidity'] > 90.0 ? \"90 - 100 %\" : \"> 100 %\")";
+				jsonSpec.data[0].transform[1].expr = expr;
+			  } 			  			 
+			  
+              // Initializing size of the chart
+              jsonSpec["height"] = height;
+              jsonSpec["width"] = width;
+            
+			  jsonSpec.legends[0].title = property;
+			
+              var periodExpr = "year(datum.Time) + \"-\"+ (month(datum.Time) + 1) + \"-\" + date(datum.Time)";
+              var ytitle = "Number of hours per day";
+
+              if (cumulativePeriod === "month") {
+                periodExpr = "year(datum.Time) + \"-\"+ (month(datum.Time) + 1)";
+                ytitle = "Number of hours per month";
+              } else if (cumulativePeriod === "year") {
+                periodExpr = "year(datum.Time)";
+                ytitle = "Number of hours per year";
+              }
+
+              jsonSpec.data[0].transform[0].expr = periodExpr;
+      
+              jsonSpec.axes[1].title = ytitle;			  
+            }
+          
+            var embedSpec = { mode: vegaMode, spec: jsonSpec };
+            vg.embed("#" + divId, embedSpec, function(error, result) { });
+          }
+        }
+      };
+
+      document.registerElement("istsos-chart", {prototype: proto});
+    </script>
+  </body>
+</html>

@@ -1,0 +1,17 @@
+<html>
+  <head>
+    <!-- <script src="../bower_components/webcomponentsjs/webcomponents.min.js"></script> -->
+  </head>
+  <body>
+    <script>
+      // Define and register <say-hi>.
+      var proto = Object.create(HTMLElement.prototype);
+
+      proto.createdCallback = function() {
+        this.innerHTML = 'Hello, <b>' + (this.getAttribute('name') || '?') + '</b>';
+      };
+
+      document.registerElement('say-hi', {prototype: proto});
+    </script>
+  </body>
+</html>

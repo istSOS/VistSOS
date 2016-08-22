@@ -1,0 +1,286 @@
+{
+  "signals": [
+    {
+      "name": "tooltip",
+      "init": {},
+      "streams": [
+        {"type": "symbol:mouseover","expr": "datum"},
+        {"type": "symbol:mouseout","expr": "{}"}
+      ]
+    },
+    {
+      "name": "brush_start",
+      "streams": [
+        {
+          "type": "@overview:mousedown",
+          "expr": "eventX()",
+          "scale": {"name": "xOverview","invert": true}
+        }
+      ]
+    },
+    {
+      "name": "brush_end",
+      "init": {"expr": "datetime('2015-01-01')"},
+      "streams": [
+        {
+          "type": "@overview:mousedown, [@overview:mousedown, window:mouseup] > window:mousemove, @overview:mouseup",
+          "expr": "clamp(eventX(), 0, 720)",
+          "scale": {"name": "xOverview","invert": true}
+        }
+      ]
+    },
+    {
+      "name": "min_date",
+      "init": {"expr": "datetime('2015-01-01')"},
+      "expr": "time(brush_start) === time(brush_end) ? datetime('2015-01-01') : min(brush_start, brush_end)"
+    },
+    {
+      "name": "max_date",
+      "init": {"expr": "datetime('2015-01-08')"},
+      "expr": "time(brush_start) === time(brush_end) ? datetime('2015-01-08') : max(brush_start, brush_end)"
+    }
+  ],
+  "data": [
+    {
+      "name": "observations",
+      "values": [],
+      "format": {"type": "json","parse": {"Time": "date"}},
+      "transform": [
+        {
+          "type": "formula",
+          "field": "dateTooltip",
+          "expr": "year(datum.Time) + \"-\"+ (month(datum.Time) + 1) + \"-\" + date(datum.Time) + \" \" + hours(datum.Time) + \"hr\""
+        }
+      ]
+    }
+  ],
+  "scales": [
+    {
+      "name": "xOverview",
+      "type": "time",
+      "range": [0,720],
+      "domain": {"data": "observations","field": "Time"}
+    },
+    {
+      "name": "yOverview",
+      "type": "linear",
+      "range": [70,0],
+      "nice": true,
+      "domain": {"data": "observations","field": "temperature"}
+    },
+    {
+      "name": "xDetail",
+      "type": "time",
+      "range": [0,720],
+      "domainMin": {"signal": "min_date"},
+      "domainMax": {"signal": "max_date"}
+    },
+    {
+      "name": "yDetail",
+      "type": "linear",
+      "range": [390,0],
+      "nice": true,
+      "domain": {"data": "observations","field": "temperature"}
+    },
+    {
+      "name": "color",
+      "type": "ordinal",
+      "domain": {"data": "observations","field": "symbol"},
+      "range": "category10"
+    }
+  ],
+  "marks": [
+    {
+      "type": "group",
+      "name": "detail",
+      "properties": {
+        "enter": {"height": {"value": 390},"width": {"value": 720}}
+      },
+      "axes": [
+        {"type": "x","scale": "xDetail"},
+        {"type": "y","scale": "yDetail","title": "temperature(°C)","grid": true}
+      ],
+      "legends": [
+        {
+          "fill": "color"
+        }
+      ],
+      "marks": [
+        {
+          "type": "group",
+          "properties": {
+            "enter": {
+              "height": {"field": {"group": "height"}},
+              "width": {"field": {"group": "width"}},
+              "clip": {"value": true}
+            }
+          },
+          "marks": [
+            {
+              "type": "line",
+              "from": {"data": "observations"},
+              "properties": {
+                "enter": {
+                  "interpolate": {"value": "monotone"},
+                  "x": {"scale": "xDetail","field": "Time"},
+                  "y": {
+                    "scale": "yDetail",
+                    "field": "temperature"
+                  },
+                  "stroke": {"scale": "color","field": "symbol"},
+                  "strokeWidth": {"value": 2}
+                },
+                "update": {
+                  "x": {"scale": "xDetail","field": "Time"},
+                  "y": {
+                    "scale": "yDetail",
+                    "field": "temperature"
+                  },
+                  "stroke": {"scale": "color","field": "symbol"}
+                }
+              }
+            },
+            {
+              "type": "symbol",
+              "from": {"data": "observations"},
+              "properties": {
+                "enter": {
+                  "x": {"scale": "xDetail","field": "Time"},
+                  "y": {
+                    "scale": "yDetail",
+                    "field": "temperature"
+                  },
+                  "stroke": {"value": "steelblue"},
+                  "fill": {"value": "white"},
+                  "size": {"value": 10}
+                },
+                "update": {
+                  "x": {"scale": "xDetail","field": "Time"},
+                  "y": {
+                    "scale": "yDetail",
+                    "field": "temperature"
+                  },
+                  "stroke": {"value": "steelblue"},
+                  "fill": {"value": "white"},
+                  "size": {"value": 10}
+                }
+              }
+            },
+            {
+              "type": "group",
+              "from": {"data": "tooltip"},
+              "properties": {
+                "update": {
+                  "x": {
+                    "scale": "xDetail",
+                    "signal": "tooltip.Time",
+                    "offset": -5
+                  },
+                  "y": {
+                    "scale": "yDetail",
+                    "signal": "tooltip.temperature",
+                    "offset": 10
+                  },
+                  "width": {"value": 90},
+                  "height": {"value": 35},
+                  "fill": [
+                    {
+                      "test": "tooltip.Time!=datum.Time",
+                      "value": "#fff"
+                    },
+                    {"value": "#fff"}
+                  ],
+                  "fillOpacity": [
+                    {
+                      "test": "tooltip.Time!=datum.Time",
+                      "value": 0.85
+                    },
+                    {"value": 0}
+                  ],
+                  "stroke": {"value": "#aaa"},
+                  "strokeWidth": [
+                    {
+                      "test": "tooltip.Time!=datum.Time",
+                      "value": 0.5
+                    },
+                    {"value": 0}
+                  ]
+                }
+              },
+              "marks": [
+                {
+                  "type": "text",
+                  "properties": {
+                    "update": {
+                      "x": {"value": 6},
+                      "y": {"value": 14},
+                      "text": {"signal": "tooltip.temperature"},
+                      "fill": {"value": "black"},
+                      "fontWeight": {"value": "bold"}
+                    }
+                  }
+                },
+                {
+                  "type": "text",
+                  "properties": {
+                    "update": {
+                      "x": {"value": 6},
+                      "y": {"value": 29},
+                      "text": {"signal": "tooltip.dateTooltip"},
+                      "fill": {"value": "black"},
+                      "align": {"value": "left"}
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "group",
+      "name": "overview",
+      "properties": {
+        "enter": {
+          "x": {"value": 0},
+          "y": {"value": 430},
+          "height": {"value": 70},
+          "width": {"value": 720},
+          "fill": {"value": "transparent"}
+        }
+      },
+      "axes": [{"type": "x","scale": "xOverview"}],
+      "marks": [
+        {
+          "type": "line",
+          "from": {"data": "observations"},
+          "properties": {
+            "update": {
+              "x": {"scale": "xOverview","field": "Time"},
+              "y": {"scale": "yOverview","field": "temperature"},
+              "y2": {"scale": "yOverview","value": 0},
+              "stroke": {"scale": "color","field": "symbol"},
+              "strokeWidth": {"value": 2}
+            }
+          }
+        },
+        {
+          "type": "rect",
+          "properties": {
+            "enter": {
+              "y": {"value": 0},
+              "height": {"value": 70},
+              "fill": {"value": "#333"},
+              "fillOpacity": {"value": 0.2}
+            },
+            "update": {
+              "x": {"scale": "xOverview","signal": "brush_start"},
+              "x2": {"scale": "xOverview","signal": "brush_end"}
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

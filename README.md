@@ -1,3 +1,9 @@
-# VistSOS: the istSOS Data Visualization Framework
+# VistSOS
 
-The proposed solution allow istSOS users to configure, customize and include a wide set of chart, bar, grid and map visualization types in their websites. Web Components Technologies shall be adopted to implement easy to use reusable user interface widgets.
+The VistSOS data visualization tool allow users to configure and customize static and dynamic charts of sensor observations managed by istSOS. This visualizations can be included in external websites as Web Components with minimum configuration effort.
+
+For more information about this project:
+
+* [GitHub wiki](https://github.com/felipe07/VistSOS-1/wiki)
+* [OSGeo wiki](https://wiki.osgeo.org/wiki/VistSOS_Data_Visualization_Framework)
+

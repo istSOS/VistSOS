@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="../bower_components/webcomponentsjs/webcomponents.min.js"></script>
+  <link rel="import" href="../src/default-widget.html" async>  
+</head>
+<body>
+  <div id="f2a24b65">
+    <istsos-chart type="histogram"
+     server="http://istsos.org/istsos"
+     service="demo"
+     offering="BELLINZONA"
+     procedures="BELLINZONA"
+     property="air-temperature"
+     from="2014-04-01T00:46:00"
+     until="2014-05-07T23:46:00"
+     aggregateInterval="PT12H"
+     aggregateFunction="AVG"
+     width="550"
+     height="250"
+     color="#00A800"
+     color2="black"
+     divId="f2a24b65">
+    </istsos-chart>
+  </div>
+</body>
+</html>

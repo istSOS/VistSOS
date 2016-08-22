@@ -1,0 +1,198 @@
+{
+  "signals": [
+    {
+      "name": "tooltip",
+      "init": {},
+      "streams": [
+        {"type": "rect:mouseover","expr": "datum"},
+        {"type": "rect:mouseout","expr": "{}"}
+      ]
+    }
+  ],
+  "data": [
+    {
+      "name": "observations",
+      "values": [],
+      "transform": [
+        {
+          "type": "formula",
+          "field": "period",
+          "expr": "year(datum.Time) + \"-\"+ (month(datum.Time) + 1) + \"-\" + date(datum.Time)"
+        },
+        {
+          "type": "formula",
+          "field": "category",
+          "expr": "(datum['air-temperature'] < -45 ? \"< -45 °C\" : datum['air-temperature'] <= -40 && datum['air-temperature'] > -45 ? \"-45 - -40 °C\" : datum['air-temperature'] <= -35 && datum['air-temperature'] > -40 ? \"-40 - -35 °C\" : datum['air-temperature'] <= -30 && datum['air-temperature'] > -35 ? \"-35 - -30 °C\" : datum['air-temperature'] <= -25 && datum['air-temperature'] > -30 ? \"-30 - -25 °C\" : datum['air-temperature'] <= -20 && datum['air-temperature'] > -25 ? \"-25 - -20 °C\" : datum['air-temperature'] <= -15 && datum['air-temperature'] > -20 ? \"-20 - -15 °C\" : datum['air-temperature'] <= -10 && datum['air-temperature'] > -15 ? \"-15 - -10 °C\" : datum['air-temperature'] <= -5 && datum['air-temperature'] > -10 ? \"-10 - -5 °C\" : datum['air-temperature'] <= 0 && datum['air-temperature'] > -5 ? \"-5 - 0 °C\" : datum['air-temperature'] > 0 && datum['air-temperature'] <= 5 ? \"0 - 5 °C\" : datum['air-temperature'] > 5 && datum['air-temperature'] <= 10 ? \"5 - 10 °C\" : datum['air-temperature'] > 10 && datum['air-temperature'] <= 15 ? \"10 - 15 °C\" : datum['air-temperature'] > 15 && datum['air-temperature'] <= 20 ? \"15 - 20 °C\" : datum['air-temperature'] > 20 && datum['air-temperature'] <= 25 ? \"20 - 25 °C\" : datum['air-temperature'] > 25 && datum['air-temperature'] <= 30 ? \"25 - 30 °C\" : datum['air-temperature'] > 30 && datum['air-temperature'] <= 35 ? \"30 - 35 °C\" : datum['air-temperature'] > 35 && datum['air-temperature'] <= 40 ? \"35 - 40 °C\" : datum['air-temperature'] > 40 && datum['air-temperature'] <= 45 ? \"40 - 45 °C\" : \"> 45 °C\")"
+        }
+      ]
+    },
+    {
+      "name": "stats1",
+      "source": "observations",
+      "transform": [
+        {
+          "type": "aggregate",
+          "groupby": ["period"],
+          "summarize": [
+            {
+              "field": "Time",
+              "ops": ["count"],
+              "as": "count_period"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "stats2",
+      "source": "observations",
+      "transform": [
+        {
+          "type": "aggregate",
+          "groupby": ["period","category"],
+          "summarize": [{"field": "category","ops": ["count"]}]
+        }
+      ]
+    }
+  ],
+  "scales": [
+    {
+      "name": "x",
+      "type": "ordinal",
+      "range": "width",
+      "domain": {"data": "observations","field": "period"}
+    },
+    {
+      "name": "y",
+      "type": "linear",
+      "range": "height",
+      "nice": true,
+      "domain": {"data": "stats1","field": "count_period"}
+    },
+    {
+      "name": "color",
+      "type": "ordinal",
+      "range": ["#C7E9C0", "#7CC68A", "#31A354", "#8BB431", "#E6C60E", "#E8A111", "#EB7D15", "#EC6A19", "#ED581D", "#F50E0E"],
+      "domain": {"data": "observations","field": "category"}
+    }
+  ],
+  "axes": [
+    {
+      "type": "x",
+      "scale": "x",
+      "properties": {
+        "labels": {
+          "angle": {"value": 390},
+          "fontSize": {"value": 10},
+          "align": {"value": "left"},
+          "baseline": {"value": "middle"}
+        }
+      },
+      "title": ""
+    },
+    {
+      "type": "y",
+      "scale": "y",
+      "title": "Number of hours",
+      "grid": true
+    }
+  ],
+  "legends": [
+    {
+	  "title": "",
+      "fill": "color",
+      "properties": {"symbols": {"shape": {"value": "square"}}}
+    }
+  ],
+  "marks": [
+    {
+      "type": "rect",
+      "from": {
+        "data": "stats2",
+        "transform": [
+          {
+            "type": "stack",
+            "groupby": ["period"],
+            "sortby": ["category"],
+            "field": "count_category"
+          }
+        ]
+      },
+      "properties": {
+        "enter": {
+          "x": {"scale": "x","field": "period"},
+          "width": {"scale": "x","band": true,"offset": -1},
+          "y": {"scale": "y","field": "layout_start"},
+          "y2": {"scale": "y","field": "layout_end"},
+          "fill": {"scale": "color","field": "category"}
+        },
+        "update": {"fillOpacity": {"value": 1}},
+        "hover": {"fillOpacity": {"value": 0.5}}
+      }
+    },
+    {
+      "type": "group",
+      "from": {"data": "tooltip"},
+      "properties": {
+        "update": {
+          "x": {
+            "scale": "x",
+            "signal": "tooltip.period",
+            "offset": -5
+          },
+          "y": {"scale": "y","offset": 10},
+          "width": {"value": 60},
+          "height": {"value": 35},
+          "fill": [
+            {
+              "test": "tooltip.period!=datum.period",
+              "value": "#fff"
+            },
+            {"value": "#fff"}
+          ],
+          "fillOpacity": [
+            {
+              "test": "tooltip.period!=datum.period",
+              "value": 0.85
+            },
+            {"value": 0}
+          ],
+          "stroke": {"value": "#aaa"},
+          "strokeWidth": [
+            {
+              "test": "tooltip.period!=datum.period",
+              "value": 0.5
+            },
+            {"value": 0}
+          ]
+        }
+      },
+      "marks": [
+        {
+          "type": "text",
+          "properties": {
+            "update": {
+              "x": {"value": 6},
+              "y": {"value": 14},
+              "text": {"signal": "tooltip.count_category"},
+              "fill": {"value": "black"},
+              "fontWeight": {"value": "bold"}
+            }
+          }
+        },
+        {
+          "type": "text",
+          "properties": {
+            "update": {
+              "x": {"value": 6},
+              "y": {"value": 29},
+              "text": {"signal": "tooltip.period"},
+              "fill": {"value": "black"},
+              "align": {"value": "left"}
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

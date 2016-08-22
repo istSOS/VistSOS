@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+    <head lang="en">
+        <meta charset="UTF-8">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/webcomponentsjs/0.7.22/webcomponents.min.js"></script>
+        <link rel="import" href="../src/default-widget.html" async>
+        <title>TEST</title>
+        
+        <style type="text/css">
+        #testId {
+        margin-bottom: 15px !important;
+        }
+        </style>
+    </head>
+    <body>
+        <div id="f2a24b61">
+            <istsos-chart type="line"
+            server="http://istsos.org/istsos"
+            service="demo"
+            offering="BELLINZONA"
+            procedures="BELLINZONA"
+            property="air-temperature"
+            from="2014-05-07T00:00"
+            until="2014-05-08T00:00"
+            width="500"
+            height="250"
+            divId="f2a24b61">
+            </istsos-chart>
+        </div>
+        
+        <div id="f2a24b69">
+            <istsos-chart type="cumulative-histogram"
+             server="http://istsos.org/istsos"
+             service="demo"
+             offering="BELLINZONA"
+             procedures="BELLINZONA"
+             property="air-temperature"
+             from="2014-01-01T00:00"
+             until="2014-12-31T00:00"
+             cumulativePeriod="month"
+             width="500"
+             height="250"
+             divId="f2a24b69">
+            </istsos-chart>
+        </div>
+        
+        <div id="f2a24b65">
+        </div>
+        <script>
+        setTimeout(function() {
+            var chart2 = document.createElement("istsos-chart", "istsos-chart");
+            chart2.setAttribute("server", "http://istsos.org/istsos");
+            chart2.setAttribute("service", "demo");
+            chart2.setAttribute("offering", "temporary");
+            chart2.setAttribute("procedures", "T_LUGANO,BELLINZONA");
+            chart2.setAttribute("property", "air-temperature");
+            chart2.setAttribute("from", "2014-05-07T00:46:00");
+            chart2.setAttribute("until", "2014-05-08T23:46:00");
+            chart2.setAttribute("divId", "f2a24b65");
+            var chart1 = document.getElementById("f2a24b61"); 
+            document.body.insertBefore(chart2, chart1); 
+        }, 5000)
+        </script>
+    </body>
+</html>
