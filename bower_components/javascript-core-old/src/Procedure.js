@@ -2,7 +2,6 @@ goog.require('goog.events');
 goog.require('goog.events.Event');
 goog.require('goog.events.EventTarget');
 goog.require('goog.net.XhrIo');
-/** istsos.Procedure class */
 /**
  * @param {istsos.Service} service
  * @param {String} name

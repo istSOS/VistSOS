@@ -3,7 +3,8 @@
     <meta charset="utf-8">
     <title>istSOS Chart Component</title>
     <!-- <script src="../bower_components/webcomponentsjs/webcomponents.min.js"></script> -->
-    <script src="../bower_components/javascript-core/compiled/istsos-core-2.1.js"></script>
+    <!-- <script src="../bower_components/javascript-core/compiled/istsos-core-2.1.js"></script> -->
+	<script src="../bower_components/javascript-core/compiled/istsos-core.js"></script>
     <script src="//d3js.org./d3.v3.min.js"></script>
     <script src="//vega.github.io/vega/vega.js"></script>
     <script src="//vega.github.io/vega-lite/vega-lite.js"></script>
@@ -87,17 +88,23 @@
           }
 
           var divId = this.getAttribute("divId");
+		  
+		  // Initialization of authentication object.		  
+		  var loginConfig = {
+		    user: this.getAttribute("user") || null,
+			password : this.getAttribute("password") || null
+		  }
 
           if (moment.utc(from).isValid() && moment.utc(until).isValid()) {
-            // Get observations with the set of mandatory parameters using the script called data-provider.
-            // The callback function loadSpec is passed as a parameter in order to execute the chart specification loading
+            // Get observations with the set of mandatory parameters using data-provider.js.
+            // The callback function loadSpec is passed as a parameter in order to load the chart specification
             // after the successful execution of the function getObservations.
 
             if (chartType === "cumulative-histogram") {
               aggregateInterval = "PT1H";
               aggregateFunction = "AVG";
             }
-            getObservations(server, service, offering, procedures, props, from, until, aggregateInterval, aggregateFunction, loadSpec);
+            getObservations(server, service, offering, procedures, props, from, until, aggregateInterval, aggregateFunction, loadSpec, loginConfig);
           }
 
           function loadSpec(data, units) {
