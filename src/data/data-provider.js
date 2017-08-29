@@ -1,16 +1,10 @@
-function getObservations(serverName, serviceName, offeringName, procedures, propsNames, from, until, aggregateInterval, aggregateFunction, callback, loginConfig) {
+function getObservations(serverName, serviceName, offeringName, procedures, propsNames, from, until, aggregateInterval, aggregateFunction, callback) {
 
   // BEGIN initialization of istSOS-core objects used to call the API method getObservations
   var istsosContainer = new istsos.IstSOS();
   var default_db = new istsos.Database("istsos", "localhost", "postgres", "postgres", 5432);
-  
-  var server = {};
-  if (loginConfig.user == null || loginConfig.password == null) {
-	server = new istsos.Server("istSOS-server", serverName, default_db);
-  } else {
-	console.log("here");
-	server = new istsos.Server("istSOS-server", serverName, default_db, loginConfig);
-  }
+  var server = new istsos.Server("istSOS-server", serverName, default_db);
+
   istsosContainer.addServer(server);
   
   var service = new istsos.Service(serviceName, server);
