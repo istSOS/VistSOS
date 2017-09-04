@@ -1,0 +1,20 @@
+{
+  "name": "javascript-core",
+  "homepage": "https://github.com/WebPractice-LukaG/javascript-core",
+  "authors": [
+    "Luka Glusica <luka.glusica89@gmail.com>"
+  ],
+  "description": "istsos javascript core library",
+  "main": "istsos-core.js",
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "closure-library": "https://github.com/google/closure-library.git"
+  }
+}
